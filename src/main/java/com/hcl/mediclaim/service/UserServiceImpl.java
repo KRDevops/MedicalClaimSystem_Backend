@@ -17,6 +17,12 @@ import com.hcl.mediclaim.util.MediClaimUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 
+ * @since 2019-10-21 This class includes methods for login functionality for
+ *        approver in mediclaim management system.
+ */
+
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
