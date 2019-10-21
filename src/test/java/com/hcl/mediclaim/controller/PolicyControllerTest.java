@@ -13,7 +13,6 @@ public class PolicyControllerTest {
 	@Mock
 	PolicyService policyService;
 	
-	@InjectMocks
-	PolicyResponseDto
+	
 
 }
