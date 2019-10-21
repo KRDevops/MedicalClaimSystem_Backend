@@ -27,5 +27,9 @@ public class MediClaimUtil {
 	public static final String SPRING_MAIL_SMTP_WRITETIMEOUT = "5000";
 
 	public static final String SPRING_MAIL_SMTP_STARTTLS_ENABLE = "true";
+	public static final String APPROVER_ROLE = "APPROVER";
+	public static final String USER_ROLE = "USER";
+	public static final String SENIOR_APPROVER_ROLE = "SENIOR_APPROVER";
+	public static final String APPROVER_NOT_FOUND = "User trying to login is not an approver or senior approver";
 
 }
