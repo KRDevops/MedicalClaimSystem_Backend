@@ -35,7 +35,7 @@ public class Claim implements Serializable {
 	private LocalDate dischargeDate;
 	@ManyToOne
 	private Hospital hospitalId;
-	@Lob
+@Lob
 	private String documents;
 	private Double claimAmount;
 	private Integer deviationPercentage;
