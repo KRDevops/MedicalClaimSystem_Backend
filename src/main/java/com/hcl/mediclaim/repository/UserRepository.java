@@ -9,6 +9,5 @@ import com.hcl.mediclaim.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-
 	Optional<User> findByEmailIdAndPassword(String emailId, String password);
 }

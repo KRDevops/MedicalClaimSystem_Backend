@@ -6,7 +6,7 @@ public class MediClaimUtil {
 
 	}
 
-	public static final String SUCCESS = "User Registered Successfully";
+	public static final String SUCCESS = "Search is Successful";
 	public static final String LOGIN_SUCCESS = "Logged-In Successfully";
 	public static final String FILE_EMPTY_EXCEPTION = "Uploaded file is empty";
 	public static final String EMAIL_EXCEPTION = "Email not Valid";
@@ -16,20 +16,12 @@ public class MediClaimUtil {
 	public static final Integer GENERICSUCCESSCODE = 200;
 	public static final String GENERICSUCCESSMESSAGE = "Success";
 	public static final Integer GENERICFAILURECODE = 404;
-
-	public static final String SPRING_MAIL_HOST = "smtp.gmail.com";
-	public static final String SPRING_MAIL_PORT = "587";
-	public static final String SPRING_MAIL_USERNAME = "testemailhackathon@gmail.com";
-	public static final String SPRING_MAIL_PASSWORD = "H@ckath0n";
-
-	public static final String SPRING_MAIL_SMTP_AUT = "true";
-	public static final String SPRING_MAIL_SMTP_CONNECTIONTIMEOUT = "5000";
-	public static final String SPRING_MAIL_SMTP_WRITETIMEOUT = "5000";
-
-	public static final String SPRING_MAIL_SMTP_STARTTLS_ENABLE = "true";
 	public static final String APPROVER_ROLE = "APPROVER";
 	public static final String USER_ROLE = "USER";
 	public static final String SENIOR_APPROVER_ROLE = "SENIOR_APPROVER";
 	public static final String APPROVER_NOT_FOUND = "User trying to login is not an approver or senior approver";
+	public static final String ACTIVE = "ACTIVE";
+	public static final String INACTIVE = "INACTIVE";
+	public static final String POLICY_NOT_FOUND = "The policy being searched is not found";
 
 }
