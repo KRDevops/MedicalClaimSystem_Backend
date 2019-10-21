@@ -47,11 +47,13 @@ claims.forEach(claim1->{
 	dto1.setDeviationPercent(claim1.getDeviationPercentage());
 	dto1.setDiagnosis(claim1.getDiagnosis());
 	dto1.setDischargeDate(claim1.getDischargeDate());
-	
+	hos.forEach(hos1->{
+		if(claim1.getHospitalId()==claim1.getHospitalId()){
+		dto1.setHospitalName(hos1.getHospitalName());
+		}
+	});
 	dto1.setDocuments(claim1.getDocuments());
-	
-	dto1.setHospitalName("hello");
-dto1.setPolicyNumber(claim1.getPolicyNumber());
+	dto1.setPolicyNumber(claim1.getPolicyNumber());
 	dto1.setRemarks(claim1.getRemarks());
 	dto.add(dto1);
 	dtos.setClaim(dto);
