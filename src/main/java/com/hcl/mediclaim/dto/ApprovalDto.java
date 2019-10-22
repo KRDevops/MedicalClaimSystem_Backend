@@ -18,12 +18,15 @@ public class ApprovalDto {
 	private LocalDate admissionDate;
 	private LocalDate dischargeDate;
 	private String hospitalName;
+	private String claimStatus;
 	@Lob
-	private String documents;
 	private Double claimAmount;
+
+	private String documents;
+
 	private Long policyNumber;
 	private Integer deviationPercent;
 	private String remarks;
 	private Long userId;
-	private ApprovalResponseDto data;
+
 }

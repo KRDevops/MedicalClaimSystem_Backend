@@ -34,4 +34,6 @@ public interface ClaimRepository extends JpaRepository<Claim, Long> {
 	void updateClaimStatusAndSeniorApproverIdAndRemarksByClaimId(@Param("seniorApproverId") Long seniorApproverId,
 			@Param("claimId") Long claimId, @Param("claimStatus") String claimStatus, @Param("remarks") String remarks);
 
+	List<Claim> findByApproverId(User user);
+
 }

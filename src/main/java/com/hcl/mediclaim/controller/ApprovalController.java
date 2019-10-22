@@ -30,13 +30,13 @@ public class ApprovalController {
 	@Autowired
 	ApprovalService approvalService;
 
-	@GetMapping(value = "/claims/approvals/{approverId}")
+	@GetMapping(value = "/approvals/{approverId}")
 	public ResponseEntity approval(@PathVariable Long approverId, @RequestParam Integer pageNumber) {
 		return new ResponseEntity(approvalService.approve(approverId, pageNumber), HttpStatus.OK);
 
 	}
 
-	@PutMapping("/claims/approvals")
+	@PutMapping("/approvals")
 	public ResponseEntity approve(@RequestBody ApproveRequestDto approveRequestDto)
 			throws MediClaimException, MessagingException {
 		log.info("approve method in ApprovalController started");
