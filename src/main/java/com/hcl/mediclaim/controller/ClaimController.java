@@ -3,7 +3,6 @@ package com.hcl.mediclaim.controller;
 import java.io.IOException;
 
 import javax.mail.MessagingException;
-import javax.mail.SendFailedException;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class ClaimController {
 	@PostMapping(consumes = MediaType.ALL_VALUE, path = "claims/create")
 	public ClaimResponseDto create(@NotNull @RequestPart("file") MultipartFile documents,
 			@NotNull @RequestPart("requests") String claimRequestDto)
-			throws SendFailedException, IOException, MediClaimException,MessagingException {
+			throws IOException, MediClaimException,MessagingException {
 		log.info("Claim Controller Create Method Started");
 		ClaimResponseDto claimResponseDto = claimService.create(documents, claimRequestDto);
 		if (claimResponseDto.getClaimId() != null) {

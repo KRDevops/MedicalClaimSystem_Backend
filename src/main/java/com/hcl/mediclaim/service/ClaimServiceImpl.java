@@ -84,6 +84,7 @@ public class ClaimServiceImpl implements ClaimService {
 
 		Claim claim = new Claim();
 		Double deviationPercent = 0.00;
+		Optional<User> approver = Optional.empty();
 
 		ClaimResponseDto claimResponseDto = new ClaimResponseDto();
 
@@ -104,11 +105,17 @@ public class ClaimServiceImpl implements ClaimService {
 			throw new MediClaimException(MediClaimUtil.POLICY_NOT_FOUND);
 		}
 
-		if (!hospital.get().getCountry().equalsIgnoreCase(MediClaimUtil.COUNTRY)) {
+		if (hospital.isPresent() && ! hospital.get().getCountry().equalsIgnoreCase(MediClaimUtil.COUNTRY)) {
 			throw new MediClaimException(MediClaimUtil.HOSPITAL_NETWORK);
 		}
 
-		Optional<User> approver = assignApprover(RoleNames.APPROVER);
+		// Finding Random Approver
+		Optional<Role> role = roleRepository.findByRoleName(RoleNames.APPROVER.name());
+
+		Optional<List<User>> userList = Optional.of(new ArrayList<User>());
+		if (role.isPresent()) {
+			userList = userRepository.findByRoleId(role.get());
+		}
 
 		// Calculating Deviation Percentage
 		if (claimRequest.getClaimAmount() > policy.get().getAvailableAmount()) {
@@ -124,13 +131,20 @@ public class ClaimServiceImpl implements ClaimService {
 
 		// Setting Values
 		BeanUtils.copyProperties(claimRequest, claim);
-		claim.setHospitalId(hospital.get());
 		claim.setPolicyNumber(policy.get());
-		claim.setApproverId(approver.get());
 		claim.setUserId(user.get());
 		claim.setDocumentName(fileName);
 		claim.setDeviationPercentage(deviationPercent.intValue());
+		claim.setHospitalId(hospital.get());
 		claim.setNatureOfAilment(Ailment.valueOf(claimRequest.getNatureOfAilment()));
+
+		if (userList.isPresent()) {
+			approver = userList.get().stream().findAny();
+		}
+
+		if (approver.isPresent()) {
+			claim.setApproverId(approver.get());
+		}
 
 		// Saving To Repository
 		Claim claimResponse = claimRepository.save(claim);
@@ -140,22 +154,13 @@ public class ClaimServiceImpl implements ClaimService {
 		// Sending Mail To User And Approver
 		javaMailUtil.sendEmail(user.get().getEmailId(), MediClaimUtil.SUBMIT_USER_MESSAGE,
 				MediClaimUtil.SUBMIT_USER_SUBJECT);
-		javaMailUtil.sendEmail(approver.get().getEmailId(), MediClaimUtil.SUBMIT_APPROVER_MESSAGE,
-				MediClaimUtil.SUBMIT_APPROVER_SUBJECT);
 
+		if (approver.isPresent()) {
+			javaMailUtil.sendEmail(approver.get().getEmailId(), MediClaimUtil.SUBMIT_APPROVER_MESSAGE,
+					MediClaimUtil.SUBMIT_APPROVER_SUBJECT);
+		}
 		log.info("Created Method in Claim Service Ended");
 		return claimResponseDto;
-	}
-
-	public Optional<User> assignApprover(RoleNames roleName) {
-		Optional<Role> role = roleRepository.findByRoleName(roleName.name());
-
-		Optional<List<User>> userList = Optional.of(new ArrayList<User>());
-		if (role.isPresent()) {
-			userList = userRepository.findByRoleId(role.get());
-		}
-		Optional<User> approver = userList.get().stream().findAny();
-		return approver;
 	}
 
 }
