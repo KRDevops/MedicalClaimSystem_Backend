@@ -59,6 +59,7 @@ public class UserServiceImpl implements UserService {
 			if (role.get().getRoleName().equalsIgnoreCase(MediClaimUtil.APPROVER_ROLE)
 					|| role.get().getRoleName().equalsIgnoreCase(MediClaimUtil.SENIOR_APPROVER_ROLE)) {
 				userLoginResponseDto.setUserId(user.get().getUserId());
+				userLoginResponseDto.setRoleId(role.get().getRoleId());
 			} else {
 				throw new ApproverNotFoundException(MediClaimUtil.APPROVER_NOT_FOUND);
 			}

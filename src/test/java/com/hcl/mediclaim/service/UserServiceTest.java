@@ -73,4 +73,32 @@ public class UserServiceTest {
 
 	}
 
+	@Test
+	public void positiveTestLogin() throws UserNotFoundException, ApproverNotFoundException {
+
+		Mockito.when(userRepository.findByEmailIdAndPassword(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(Optional.of(user));
+		Mockito.when(roleRepository.findById(Mockito.any())).thenReturn(null);
+		loginResponseDto = userServiceImpl.login(loginRequestDto);
+		Assert.assertEquals(Long.valueOf(1), loginResponseDto.getUserId());
+	}
+
+	@Test(expected = UserNotFoundException.class)
+	public void negativeTestLogin() throws UserNotFoundException, ApproverNotFoundException {
+		Mockito.when(userRepository.findByEmailIdAndPassword(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(Optional.empty());
+		Mockito.when(roleRepository.findById(Mockito.any())).thenReturn(null);
+		loginResponseDto = userServiceImpl.login(loginRequestDto);
+		Assert.assertEquals(null, loginResponseDto.getUserId());
+	}
+
+	@Test(expected = ApproverNotFoundException.class)
+	public void negativeTestLogin2() throws UserNotFoundException, ApproverNotFoundException {
+		Mockito.when(userRepository.findByEmailIdAndPassword(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(Optional.empty());
+		Mockito.when(roleRepository.findById(Mockito.any())).thenReturn(null);
+		loginResponseDto = userServiceImpl.login(loginRequestDto);
+		Assert.assertEquals(null, loginResponseDto.getUserId());
+	}
+
 }

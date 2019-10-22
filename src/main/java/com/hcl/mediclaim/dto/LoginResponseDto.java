@@ -11,4 +11,5 @@ public class LoginResponseDto {
 	private Long userId;
 	private String message;
 	private int statusCode;
+	private Long roleId;
 }
