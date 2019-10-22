@@ -135,7 +135,9 @@ public class ClaimServiceImpl implements ClaimService {
 		claim.setUserId(user.get());
 		claim.setDocumentName(fileName);
 		claim.setDeviationPercentage(deviationPercent.intValue());
-		claim.setHospitalId(hospital.get());
+		if(hospital.isPresent()) {
+			claim.setHospitalId(hospital.get());
+		}
 		claim.setNatureOfAilment(Ailment.valueOf(claimRequest.getNatureOfAilment()));
 
 		if (userList.isPresent()) {

@@ -27,6 +27,7 @@ public class Policy implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@SequenceGenerator(initialValue = 10000, name = "policy_number")
+
 	private Long policyNumber;
 	private String policyName;
 	private Double entitledAmount;

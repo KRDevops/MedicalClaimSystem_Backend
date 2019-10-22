@@ -17,6 +17,12 @@ import com.hcl.mediclaim.util.MediClaimUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 
+ * @since 2019-10-21 This class includes methods for login functionality for
+ *        approver in mediclaim management system.
+ */
+
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
@@ -53,6 +59,7 @@ public class UserServiceImpl implements UserService {
 			if (role.get().getRoleName().equalsIgnoreCase(MediClaimUtil.APPROVER_ROLE)
 					|| role.get().getRoleName().equalsIgnoreCase(MediClaimUtil.SENIOR_APPROVER_ROLE)) {
 				userLoginResponseDto.setUserId(user.get().getUserId());
+				userLoginResponseDto.setRoleId(role.get().getRoleId());
 			} else {
 				throw new ApproverNotFoundException(MediClaimUtil.APPROVER_NOT_FOUND);
 			}

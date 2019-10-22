@@ -40,6 +40,7 @@ public class Claim implements Serializable {
 	@ManyToOne
 	private Hospital hospitalId;
 	private String documentName;
+
 	private Double claimAmount;
 	private Integer deviationPercentage;
 

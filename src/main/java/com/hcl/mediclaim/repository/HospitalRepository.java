@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.hcl.mediclaim.entity.Hospital;
 
 @Repository
-public interface HospitalRepository extends JpaRepository<Hospital, Long>{
+public interface HospitalRepository extends JpaRepository<Hospital, Long> {
 
 }
