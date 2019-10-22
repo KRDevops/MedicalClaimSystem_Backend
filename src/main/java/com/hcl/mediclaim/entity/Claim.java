@@ -41,8 +41,8 @@ public class Claim implements Serializable {
 	private Integer deviationPercentage;
 
 	private String claimStatus;
-	
-	private Long policyNumber;
+	@ManyToOne
+	private Policy policyNumber;
 	private String remarks;
 	@ManyToOne
 	private User userId;

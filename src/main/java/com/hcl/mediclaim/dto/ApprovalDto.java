@@ -10,6 +10,7 @@ import javax.persistence.Lob;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hcl.mediclaim.entity.Policy;
+import com.hcl.mediclaim.entity.User;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -32,5 +33,5 @@ public class ApprovalDto {
 	private Integer deviationPercent;
 	private String remarks;
 	private Long userId;
-	private ApprovalResponseDto data;
+
 }

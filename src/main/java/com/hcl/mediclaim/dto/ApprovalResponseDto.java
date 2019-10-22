@@ -11,6 +11,7 @@ import lombok.ToString;
 @ToString
 public class ApprovalResponseDto {
 	private List<ApprovalDto> claim;
+	private Integer count;
 private Integer statusCode;
 private String message;
 }
