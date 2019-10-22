@@ -47,14 +47,18 @@ public class UserServiceImpl implements UserService {
 	public LoginResponseDto login(LoginRequestDto userLoginRequestDto)
 			throws UserNotFoundException, ApproverNotFoundException {
 		log.info("login method in UserService started");
+		
 		Optional<User> user = userRepository.findByEmailIdAndPassword(userLoginRequestDto.getEmailId(),
 				userLoginRequestDto.getPassword());
+		
 		if (!user.isPresent()) {
 			throw new UserNotFoundException(MediClaimUtil.USER_NOT_FOUND);
 		}
 
 		Optional<Role> role = roleRepository.findByRoleId(user.get().getRoleId().getRoleId());
+		
 		LoginResponseDto userLoginResponseDto = new LoginResponseDto();
+		
 		if (role.isPresent()) {
 			if (role.get().getRoleName().equalsIgnoreCase(MediClaimUtil.APPROVER_ROLE)
 					|| role.get().getRoleName().equalsIgnoreCase(MediClaimUtil.SENIOR_APPROVER_ROLE)) {

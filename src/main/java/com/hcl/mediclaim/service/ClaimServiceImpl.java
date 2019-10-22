@@ -105,6 +105,9 @@ public class ClaimServiceImpl implements ClaimService {
 			throw new MediClaimException(MediClaimUtil.POLICY_NOT_FOUND);
 		}
 
+		if (!user.isPresent()) {
+			throw new MediClaimException(MediClaimUtil.USER_NOT_FOUND);
+		}
 		if (hospital.isPresent() && ! hospital.get().getCountry().equalsIgnoreCase(MediClaimUtil.COUNTRY)) {
 			throw new MediClaimException(MediClaimUtil.HOSPITAL_NETWORK);
 		}
@@ -118,11 +121,12 @@ public class ClaimServiceImpl implements ClaimService {
 		}
 
 		// Calculating Deviation Percentage
-		if (claimRequest.getClaimAmount() > policy.get().getAvailableAmount()) {
-			deviationPercent = (claimRequest.getClaimAmount() - policy.get().getAvailableAmount()) * 100
-					/ policy.get().getAvailableAmount();
+		if (claimRequest.getClaimAmount() < policy.get().getAvailableAmount()) {
+			throw new MediClaimException(MediClaimUtil.AVAILABLE_LOW_EXCEPTION);
 		}
-
+		
+		deviationPercent = (claimRequest.getClaimAmount() - policy.get().getAvailableAmount()) * 100
+				/ policy.get().getAvailableAmount();
 		// Copying File To Resource Folder
 		Path rootLocation = Paths.get(MediClaimUtil.ATTACHMENT_PATH);
 		String fileName = user.get().getUserName() + claimRequest.getPolicyNumber().toString()

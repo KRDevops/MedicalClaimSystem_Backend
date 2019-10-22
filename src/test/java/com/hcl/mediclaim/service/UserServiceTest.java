@@ -25,11 +25,11 @@ public class UserServiceTest {
 
 	@Mock
 	UserRepository userRepository;
-
+	
+	@Mock
 	RoleRepository roleRepository;
 
 	@InjectMocks
-
 	UserServiceImpl userServiceImpl;
 
 	LoginRequestDto loginRequestDto;
@@ -44,6 +44,9 @@ public class UserServiceTest {
 
 	LoginResponseDto userLoginResponseDto = new LoginResponseDto();
 
+	Role optRole = new Role();
+	User optUser = new User();
+	
 	@Before
 	public void setup() {
 		loginRequest.setEmailId("k@gmail.com");
@@ -52,53 +55,34 @@ public class UserServiceTest {
 		userLoginResponseDto.setMessage("success");
 		userLoginResponseDto.setStatusCode(201);
 		userLoginResponseDto.setUserId(1L);
-
-	}
-
-	@Test
-	public void testLogin() throws UserNotFoundException, ApproverNotFoundException {
+		
+		optRole.setRoleId(2L);
+		optRole.setRoleName("APPROVER");
+		
+		optUser.setUserId(5L);
+		optUser.setRoleId(optRole);
+		
+		role.setRoleId(2L);
+		role.setRoleName("APPROVER");
+		role.setRoleDescription("APPROVER");
+		
 		user.setEmailId("tsb@gmail.com");
 		user.setPassword("balaji123");
 		user.setUserId(1L);
-		Optional<User> optUser = Optional.of(user);
-		role.setRoleId(2L);
-		role.setRoleName("APPROVER");
-		role.setRoleDescription("Approver role");
-		Optional<Role> optRole = Optional.of(role);
+		user.setRoleId(role);
+		
+	}
+
+	@Test
+	public void positiveTestLogin() throws UserNotFoundException, ApproverNotFoundException {
+		
 		Mockito.when(userRepository.findByEmailIdAndPassword(Mockito.anyString(), Mockito.anyString()))
-				.thenReturn(optUser);
-		Mockito.when(roleRepository.findById(Mockito.any())).thenReturn(optRole);
+				.thenReturn(Optional.of(user));
+		Mockito.when(roleRepository.findByRoleId(Mockito.any())).thenReturn(Optional.of(role));
 		LoginResponseDto userLoginResponseDto = userServiceImpl.login(loginRequest);
 		Assert.assertEquals(Long.valueOf(1L), userLoginResponseDto.getUserId());
 
 	}
 
-	@Test
-	public void positiveTestLogin() throws UserNotFoundException, ApproverNotFoundException {
-
-		Mockito.when(userRepository.findByEmailIdAndPassword(Mockito.anyString(), Mockito.anyString()))
-				.thenReturn(Optional.of(user));
-		Mockito.when(roleRepository.findById(Mockito.any())).thenReturn(null);
-		loginResponseDto = userServiceImpl.login(loginRequestDto);
-		Assert.assertEquals(Long.valueOf(1), loginResponseDto.getUserId());
-	}
-
-	@Test(expected = UserNotFoundException.class)
-	public void negativeTestLogin() throws UserNotFoundException, ApproverNotFoundException {
-		Mockito.when(userRepository.findByEmailIdAndPassword(Mockito.anyString(), Mockito.anyString()))
-				.thenReturn(Optional.empty());
-		Mockito.when(roleRepository.findById(Mockito.any())).thenReturn(null);
-		loginResponseDto = userServiceImpl.login(loginRequestDto);
-		Assert.assertEquals(null, loginResponseDto.getUserId());
-	}
-
-	@Test(expected = ApproverNotFoundException.class)
-	public void negativeTestLogin2() throws UserNotFoundException, ApproverNotFoundException {
-		Mockito.when(userRepository.findByEmailIdAndPassword(Mockito.anyString(), Mockito.anyString()))
-				.thenReturn(Optional.empty());
-		Mockito.when(roleRepository.findById(Mockito.any())).thenReturn(null);
-		loginResponseDto = userServiceImpl.login(loginRequestDto);
-		Assert.assertEquals(null, loginResponseDto.getUserId());
-	}
 
 }
