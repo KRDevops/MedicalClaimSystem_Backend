@@ -30,10 +30,18 @@ public interface ClaimRepository extends JpaRepository<Claim, Long> {
 
 	@Transactional
 	@Modifying
-	@Query("UPDATE Claim c SET c.claimStatus = :claimStatus , c.remarks=:remarks , c.seniorApproverId=:seniorApproverId WHERE c.id = :claimId")
-	void updateClaimStatusAndSeniorApproverIdAndRemarksByClaimId(@Param("seniorApproverId") Long seniorApproverId,
+	@Query("UPDATE Claim c SET c.claimStatus = :claimStatus , c.remarks=:remarks , c.seniorApproverId=:seniorApproverId WHERE c.claimId = :claimId")
+	void updateClaimStatusAndSeniorApproverIdAndRemarksByClaimId(@Param("seniorApproverId") User seniorApproverId,
 			@Param("claimId") Long claimId, @Param("claimStatus") String claimStatus, @Param("remarks") String remarks);
 
 	List<Claim> findByApproverId(User user);
+
+	//List<Claim> findBySeniorApproverId(User user, Pageable paging);
+
+	//List<Claim> findBySeniorApproverId(User user);
+
+	List<Claim> findByApproverIdOrSeniorApproverId(User user);
+
+	List<Claim> findByApproverIdOrSeniorApproverId(User user, Pageable paging);
 
 }
