@@ -71,8 +71,6 @@ public class ApprovalServiceImpl implements ApprovalService {
 			dto1.setDiagnosis(claim1.getDiagnosis());
 			dto1.setDischargeDate(claim1.getDischargeDate());
 
-			dto1.setDocuments(claim1.getDocuments());
-
 			dto1.setHospitalName("hello");
 			dto1.setPolicyNumber(claim1.getPolicyNumber().getPolicyNumber());
 			dto1.setRemarks(claim1.getRemarks());
@@ -88,7 +86,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 
 	/**
 	 * @throws MediClaimException
-	 * @throws MessagingException 
+	 * @throws MessagingException
 	 * 
 	 */
 	@Override
@@ -133,17 +131,17 @@ public class ApprovalServiceImpl implements ApprovalService {
 				responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
 
 			} else if (approveRequestDto.getStatus().equals(MediClaimUtil.PASS) && seniorApprovers.isPresent()) {
-				
+
 				Optional<User> seniorApprover = seniorApprovers.get().stream().findAny();
-				if(seniorApprover.isPresent()) {
+				if (seniorApprover.isPresent()) {
 					claimRepository.updateClaimStatusAndSeniorApproverIdAndRemarksByClaimId(
 							seniorApprover.get().getUserId(), approveRequestDto.getClaimId(), MediClaimUtil.PENDING,
 							approveRequestDto.getRemarks());
-				}else {
+				} else {
 					throw new MediClaimException(MediClaimUtil.SENIOR_APPROVER_NOT_PRESENT);
 				}
-					responseDto.setMessage(MediClaimUtil.PASSED);
-					responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
+				responseDto.setMessage(MediClaimUtil.PASSED);
+				responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
 			}
 
 			if (approver.getRoleId().getRoleId().equals(MediClaimUtil.THREE)) {
