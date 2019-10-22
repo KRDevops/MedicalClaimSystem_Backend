@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.mail.MessagingException;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -86,16 +88,17 @@ public class ApprovalServiceImpl implements ApprovalService {
 
 	/**
 	 * @throws MediClaimException
+	 * @throws MessagingException 
 	 * 
 	 */
 	@Override
-	public ResponseDto approve(ApproveRequestDto approveRequestDto) throws MediClaimException {
+	public ResponseDto approve(ApproveRequestDto approveRequestDto) throws MediClaimException, MessagingException {
 		log.info("approve method in Approval Service started");
 		User approver = userRepository.findByUserId(approveRequestDto.getApproverId());
 		Optional<Claim> claim = claimRepository.findByClaimId(approveRequestDto.getClaimId());
 		Policy policy = new Policy();
 		ResponseDto responseDto = new ResponseDto();
-		List<User> seniorApprovers = userRepository.findByRoleId(
+		Optional<List<User>> seniorApprovers = userRepository.findByRoleId(
 				new Role(MediClaimUtil.THREE, MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE));
 		if (claim.isPresent()) {
 			if (approver.getRoleId().getRoleId().equals(MediClaimUtil.TWO)
@@ -129,15 +132,18 @@ public class ApprovalServiceImpl implements ApprovalService {
 				responseDto.setMessage(MediClaimUtil.REJECTED);
 				responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
 
-			} else if (approveRequestDto.getStatus().equals(MediClaimUtil.PASS)) {
-				Optional<User> seniorApprover = seniorApprovers.stream().findAny();
-				if (seniorApprover.isPresent()) {
+			} else if (approveRequestDto.getStatus().equals(MediClaimUtil.PASS) && seniorApprovers.isPresent()) {
+				
+				Optional<User> seniorApprover = seniorApprovers.get().stream().findAny();
+				if(seniorApprover.isPresent()) {
 					claimRepository.updateClaimStatusAndSeniorApproverIdAndRemarksByClaimId(
 							seniorApprover.get().getUserId(), approveRequestDto.getClaimId(), MediClaimUtil.PENDING,
 							approveRequestDto.getRemarks());
+				}else {
+					throw new MediClaimException(MediClaimUtil.SENIOR_APPROVER_NOT_PRESENT);
+				}
 					responseDto.setMessage(MediClaimUtil.PASSED);
 					responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
-				}
 			}
 
 			if (approver.getRoleId().getRoleId().equals(MediClaimUtil.THREE)) {

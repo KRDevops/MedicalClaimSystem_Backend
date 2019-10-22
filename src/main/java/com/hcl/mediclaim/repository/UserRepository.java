@@ -13,7 +13,7 @@ import com.hcl.mediclaim.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByEmailIdAndPassword(String emailId, String password);
 
-	List<User> findByRoleId(Role roleId);
-
 	User findByUserId(Long userId);
+
+	Optional<List<User>> findByRoleId(Role role);
 }

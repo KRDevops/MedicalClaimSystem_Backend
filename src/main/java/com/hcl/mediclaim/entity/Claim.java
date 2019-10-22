@@ -14,6 +14,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
+
+import com.hcl.mediclaim.enums.Ailment;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -30,17 +34,19 @@ public class Claim implements Serializable {
 	@SequenceGenerator(initialValue = 20000, name = "claim_id")
 	private Long claimId;
 	private String diagnosis;
+	@CreationTimestamp
 	private LocalDate claimDate;
 	private LocalDate admissionDate;
 	private LocalDate dischargeDate;
 	@ManyToOne
 	private Hospital hospitalId;
-@Lob
+	@Lob
 	private String documents;
+	private String documentName;
 	private Double claimAmount;
 	private Integer deviationPercentage;
 
-	private String claimStatus;
+	private String claimStatus = "INITIATED";
 	@ManyToOne
 	private Policy policyNumber;
 	private String remarks;
@@ -52,8 +58,4 @@ public class Claim implements Serializable {
 	private User seniorApproverId;
 	@Enumerated(EnumType.STRING)
 	private Ailment natureOfAilment;
-}
-
-enum Ailment {
-	CHRONIC, MINOR;
 }
