@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 
 import com.hcl.mediclaim.entity.Policy;
 
-
 @Repository
 public interface PolicyRepository extends JpaRepository<Policy, Long> {
 
