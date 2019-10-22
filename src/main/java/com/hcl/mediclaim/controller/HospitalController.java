@@ -19,14 +19,26 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/v1")
 @CrossOrigin(allowedHeaders = { "*", "*/" }, origins = { "*", "*/" })
 @Slf4j
+/**
+ * 
+ * @author User1
+ * @since 2019-10-21 This class includes methods for Hospital list functionality for
+ *        approver in mediclaim management system.
+ *
+ */
 public class HospitalController {
+	
 
 	@Autowired
 	HospitalService hospitalService;
-
+    
+	/**
+     *  Method used for getting list of hospitals
+     * @return
+     */
 	@GetMapping("/hospitals")
 	public ResponseEntity<List<Hospital>> hospitals() {
-
+		log.info("Hospital list started in HOspital controller");
 		return new ResponseEntity<>(hospitalService.listHospitals(), HttpStatus.OK);
 
 	}

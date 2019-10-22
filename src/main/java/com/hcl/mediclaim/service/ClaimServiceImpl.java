@@ -72,6 +72,7 @@ public class ClaimServiceImpl implements ClaimService {
 	@Override
 	public ClaimResponseDto create(MultipartFile documents, String claimRequestDto)
 			throws IOException, MediClaimException, MessagingException {
+		log.info("Claim service started in Claim controller");
 
 		Claim claim = new Claim();
 		Double deviationPercent = 0.00;
