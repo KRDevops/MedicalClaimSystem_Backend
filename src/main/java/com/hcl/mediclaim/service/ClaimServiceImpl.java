@@ -120,7 +120,6 @@ public class ClaimServiceImpl implements ClaimService {
 		claim.setUserId(user.get());
 		claim.setDocumentName(fileName);
 		claim.setDeviationPercentage(deviationPercent.intValue());
-
 		// Saving To Repository
 		Claim claimResponse = claimRepository.save(claim);
 
@@ -134,7 +133,7 @@ public class ClaimServiceImpl implements ClaimService {
 	}
 
 	public Optional<User> assignApprover(RoleNames roleName) {
-		Optional<Role> role = roleRepository.findByRoleName(roleName);
+		Optional<Role> role = roleRepository.findByRoleName(roleName.name());
 		
 		Optional<List<User>> userList = Optional.of(new ArrayList<User>());
 		if (role.isPresent()) {

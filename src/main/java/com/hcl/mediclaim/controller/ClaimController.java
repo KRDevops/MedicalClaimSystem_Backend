@@ -30,8 +30,8 @@ public class ClaimController {
 	@Autowired
 	ClaimService claimService;
 
-	@PostMapping(consumes = MediaType.ALL_VALUE, path = "claims/creates")
-	public ClaimResponseDto creates(@NotNull @RequestPart("file") MultipartFile documents,
+	@PostMapping(consumes = MediaType.ALL_VALUE, path = "claims/create")
+	public ClaimResponseDto create(@NotNull @RequestPart("file") MultipartFile documents,
 			@NotNull @RequestPart("requests") String claimRequestDto)
 			throws SendFailedException, IOException, MediClaimException,MessagingException {
 		ClaimResponseDto claimResponseDto = claimService.create(documents, claimRequestDto);
