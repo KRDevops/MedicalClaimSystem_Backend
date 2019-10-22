@@ -3,6 +3,7 @@ package com.hcl.mediclaim.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.hcl.mediclaim.entity.Hospital;
 
@@ -10,7 +11,7 @@ import com.hcl.mediclaim.repository.HospitalRepository;
 
 
 
-	
+@Service	
 public class HospitalServiceImpl implements HospitalService
 {
 	
