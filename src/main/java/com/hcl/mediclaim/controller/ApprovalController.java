@@ -3,6 +3,7 @@ package com.hcl.mediclaim.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import com.hcl.mediclaim.service.ApprovalService;
 
 
 @RestController
+@CrossOrigin(allowedHeaders = { "*", "*/" }, origins = { "*", "*/" })
 @RequestMapping(value="/api/v1")
 public class ApprovalController {
 	@Autowired

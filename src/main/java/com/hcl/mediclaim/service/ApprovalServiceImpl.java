@@ -43,7 +43,7 @@ claims.forEach(claim1->{
 	dto1.setClaimAmount(claim1.getClaimAmount());
 	dto1.setClaimDate(claim1.getClaimDate());
 	dto1.setClaimId(claim1.getClaimId());
-	
+	dto1.setClaimStatus(claim1.getClaimStatus());
 	dto1.setDeviationPercent(claim1.getDeviationPercentage());
 	dto1.setDiagnosis(claim1.getDiagnosis());
 	dto1.setDischargeDate(claim1.getDischargeDate());
@@ -60,8 +60,6 @@ claims.forEach(claim1->{
 });
 
 
-dtos.setStatusCode(200);
-dtos.setMessage("success");
 return dtos;
 
 	}

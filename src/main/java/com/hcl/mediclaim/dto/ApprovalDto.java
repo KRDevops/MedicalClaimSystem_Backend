@@ -24,10 +24,11 @@ public class ApprovalDto {
 	private LocalDate admissionDate;
 	private LocalDate dischargeDate;
 	private String hospitalName;
+	private String claimStatus;
 	@Lob
 	private String  documents;
 	private  Double  claimAmount;
-	private Policy policyNumber;
+	private Long policyNumber;
 	private Integer deviationPercent;
 	private String remarks;
 	private Long userId;
