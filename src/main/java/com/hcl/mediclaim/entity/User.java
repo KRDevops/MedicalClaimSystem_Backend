@@ -3,6 +3,7 @@ package com.hcl.mediclaim.entity;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,6 +25,7 @@ public class User implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long userId;
+	@Column(name = "user_name", nullable = false)
 	private String userName;
 	private LocalDate dateOfBirth;
 	private String address;
@@ -32,10 +34,13 @@ public class User implements Serializable {
 	private String country;
 	private String city;
 	private Long pincode;
+	@Column(name = "email_id", nullable = false, unique = true)
 	private String emailId;
+	@Column(name = "phone_number", nullable = false)
 	private Long phoneNumber;
 	@ManyToOne
 	private Role roleId;
+	@Column(name = "password", nullable = false)
 	private String password;
 
 }
