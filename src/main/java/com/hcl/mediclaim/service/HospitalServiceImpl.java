@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.hcl.mediclaim.dto.HospitalResponseDto;
 import com.hcl.mediclaim.entity.Hospital;
 
 import com.hcl.mediclaim.repository.HospitalRepository;
