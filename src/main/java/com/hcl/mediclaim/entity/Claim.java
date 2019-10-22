@@ -44,7 +44,7 @@ public class Claim implements Serializable {
 	private Double claimAmount;
 	private Integer deviationPercentage;
 
-	private String claimStatus = "Waiting For Approval One";
+	private String claimStatus = "INITIATED";
 	@ManyToOne
 	private Policy policyNumber;
 	private String remarks;

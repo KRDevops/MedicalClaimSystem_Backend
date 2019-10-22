@@ -25,6 +25,7 @@ import com.hcl.mediclaim.entity.Hospital;
 import com.hcl.mediclaim.entity.Policy;
 import com.hcl.mediclaim.entity.Role;
 import com.hcl.mediclaim.entity.User;
+import com.hcl.mediclaim.enums.Ailment;
 import com.hcl.mediclaim.enums.RoleNames;
 import com.hcl.mediclaim.exception.MediClaimException;
 import com.hcl.mediclaim.repository.ClaimRepository;
@@ -33,13 +34,15 @@ import com.hcl.mediclaim.repository.PolicyRepository;
 import com.hcl.mediclaim.repository.RoleRepository;
 import com.hcl.mediclaim.repository.UserRepository;
 import com.hcl.mediclaim.util.JavaMailUtil;
+import com.hcl.mediclaim.util.MediClaimUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * @author Afrin
+ * @since 2019-10-22 This class includes methods for raising a mediclaim
+ *        request.
  * 
- * @author User1
- *
  */
 @Service
 @Slf4j
@@ -64,14 +67,20 @@ public class ClaimServiceImpl implements ClaimService {
 	JavaMailUtil javaMailUtil;
 
 	/**
-	 * @throws IOException
-	 * @throws MediClaimException
-	 * @throws MessagingException 
+	 * This method will save per claim details into the respective table.
+	 * 
+	 * @param documents       contain the file data
+	 * @param claimRequestDto conatins
+	 *                        diagnosis,admissionDate,dischargeDate,hospitalId,policyNumber,natureOfAilment,userId,claimAmount.
+	 * @return ClaimResponseDto contains claim id,message and status code.
+	 * 
 	 * 
 	 */
 	@Override
 	public ClaimResponseDto create(MultipartFile documents, String claimRequestDto)
 			throws IOException, MediClaimException, MessagingException {
+
+		log.info("Create Method In Claim Service Started");
 
 		Claim claim = new Claim();
 		Double deviationPercent = 0.00;
@@ -88,28 +97,29 @@ public class ClaimServiceImpl implements ClaimService {
 		Optional<Hospital> hospital = hospitalRepository.findById(claimRequest.getHospitalId());
 
 		if (!user.isPresent()) {
-			throw new MediClaimException("Invalid User");
+			throw new MediClaimException(MediClaimUtil.USER_NOT_FOUND);
 		}
 
 		if (!policy.isPresent()) {
-			throw new MediClaimException("Invalid Policy Number");
+			throw new MediClaimException(MediClaimUtil.POLICY_NOT_FOUND);
 		}
 
-		if (!hospital.get().getCountry().equalsIgnoreCase("India")) {
-			throw new MediClaimException("Provided Hospital Is Outside Coverage");
+		if (!hospital.get().getCountry().equalsIgnoreCase(MediClaimUtil.COUNTRY)) {
+			throw new MediClaimException(MediClaimUtil.HOSPITAL_NETWORK);
 		}
 
-		Optional<User> approver=assignApprover(RoleNames.APPROVER);
+		Optional<User> approver = assignApprover(RoleNames.APPROVER);
 
-		// Calculating Deviation Amount
+		// Calculating Deviation Percentage
 		if (claimRequest.getClaimAmount() > policy.get().getAvailableAmount()) {
 			deviationPercent = (claimRequest.getClaimAmount() - policy.get().getAvailableAmount()) * 100
 					/ policy.get().getAvailableAmount();
 		}
 
 		// Copying File To Resource Folder
-		Path rootLocation = Paths.get("src/main/resources");
-		String fileName = claimRequest.getPolicyNumber().toString() + claimRequest.getUserId().toString() + user.get().getUserName()+".pdf";
+		Path rootLocation = Paths.get(MediClaimUtil.ATTACHMENT_PATH);
+		String fileName = user.get().getUserName() + claimRequest.getPolicyNumber().toString()
+				+ claimRequest.getUserId().toString() + MediClaimUtil.FILE_EXTENSION;
 		Files.copy(documents.getInputStream(), rootLocation.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
 
 		// Setting Values
@@ -120,21 +130,26 @@ public class ClaimServiceImpl implements ClaimService {
 		claim.setUserId(user.get());
 		claim.setDocumentName(fileName);
 		claim.setDeviationPercentage(deviationPercent.intValue());
+		claim.setNatureOfAilment(Ailment.valueOf(claimRequest.getNatureOfAilment()));
+
 		// Saving To Repository
 		Claim claimResponse = claimRepository.save(claim);
 
 		claimResponseDto.setClaimId(claimResponse.getClaimId());
-		
-		//Sending Mail To User And Approver
-		javaMailUtil.sendEmail(user.get().getEmailId(), "Hi ,\n Your Claim Request Has Been Submitted Successfully \n ", "MEDICLAIM STATUS");
-		javaMailUtil.sendEmail(approver.get().getEmailId(), "Hi,\n A Mediclaim Request is waiting for your approval \n", "MEDICLAIM APPROVAL REQUEST");
 
+		// Sending Mail To User And Approver
+		javaMailUtil.sendEmail(user.get().getEmailId(), MediClaimUtil.SUBMIT_USER_MESSAGE,
+				MediClaimUtil.SUBMIT_USER_SUBJECT);
+		javaMailUtil.sendEmail(approver.get().getEmailId(), MediClaimUtil.SUBMIT_APPROVER_MESSAGE,
+				MediClaimUtil.SUBMIT_APPROVER_SUBJECT);
+
+		log.info("Created Method in Claim Service Ended");
 		return claimResponseDto;
 	}
 
 	public Optional<User> assignApprover(RoleNames roleName) {
 		Optional<Role> role = roleRepository.findByRoleName(roleName.name());
-		
+
 		Optional<List<User>> userList = Optional.of(new ArrayList<User>());
 		if (role.isPresent()) {
 			userList = userRepository.findByRoleId(role.get());
