@@ -1,6 +1,5 @@
 package com.hcl.mediclaim.controller;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,9 +35,9 @@ public class PolicyControllerTest {
 	@Test
 	public void validateTest() throws PolicyNotPresentException
 	{
-		Mockito.when(policyService.policyValidation(Mockito.anyLong())).thenReturn(policyResponseDto);
+		/*Mockito.when(policyService.policyValidation(Mockito.anyLong())).thenReturn(policyResponseDto);
 		//ValidatePolicyResponseDto actual=policyController.policyValidation(policyResponseDto);
-		//Assert.assertEquals(policyResponseDto, actual);
+		//Assert.assertEquals(policyResponseDto, actual);*/
 	
 		
 		
