@@ -1,6 +1,7 @@
 package com.hcl.mediclaim.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,13 +17,13 @@ public interface ClaimRepository extends JpaRepository<Claim,Long>{
 
 	
 
-	//List<Claim> findByApproverId(User claim);
+
 
 	List<Claim> findByApproverId(User user, Pageable paging);
 
-	List<Claim> findByApproverId(User user);
+	Optional<List<Claim>> findByApproverId(User user);
 
-	List<Claim> findByApproverId(Claim claim, Pageable paging);
+
 
 
 
