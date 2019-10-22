@@ -41,8 +41,6 @@ public class ApprovalController {
 			throws MediClaimException, MessagingException {
 		log.info("approve method in ApprovalController started");
 		ResponseDto responseDto = approvalService.approve(approveRequestDto);
-		responseDto.setMessage(MediClaimUtil.APPROVE_SUCCESS);
-		responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
 		log.info("approve method in ApprovalController ended");
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
