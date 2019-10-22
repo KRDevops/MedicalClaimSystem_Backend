@@ -16,6 +16,10 @@ public class MediClaimUtil {
 	public static final Integer GENERICSUCCESSCODE = 200;
 	public static final String GENERICSUCCESSMESSAGE = "Success";
 	public static final Integer GENERICFAILURECODE = 404;
+	public static final String APPROVER_ROLE = "APPROVER";
+	public static final String USER_ROLE = "USER";
+	public static final String SENIOR_APPROVER_ROLE = "SENIOR_APPROVER";
+	public static final String APPROVER_NOT_FOUND = "User trying to login is not an approver or senior approver";
 	public static final String ACTIVE = "ACTIVE";
 	public static final String INACTIVE = "INACTIVE";
 	public static final String POLICY_NOT_FOUND = "The policy being searched is not found";
