@@ -10,6 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.hcl.mediclaim.enums.RoleNames;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -29,6 +31,3 @@ public class Role implements Serializable {
 	private String roleDescription;
 }
 
-enum RoleNames {
-	USER, APPROVER, SENIOR_APPROVER
-}
