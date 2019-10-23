@@ -20,7 +20,7 @@ public class MediClaimUtil {
 	public static final String APPROVER_ROLE = "APPROVER";
 	public static final String USER_ROLE = "USER";
 	public static final String SENIOR_APPROVER_ROLE = "SENIOR_APPROVER";
-	public static final String APPROVER_NOT_FOUND = "User trying to login is not an approver or senior approver";
+	public static final String APPROVER_NOT_FOUND = "Invalid User";
 	public static final String ACTIVE = "ACTIVE";
 	public static final String INACTIVE = "INACTIVE";
 	public static final String APPROVE_SUCCESS = "The claim amount has been approved successfully";
@@ -54,4 +54,7 @@ public class MediClaimUtil {
 	public static final String MOVE = "MOVE";
 	public static final String APRROVEORREJECTBYSENIOR = "Approve/Reject by Senior Approver is done";
 	public static final Integer SIZE = 10;
+	public static final String CLAIM_FOR_REJECTION_NOT_AVAILABLE = "No claim is present for rejection";
+	public static final String CLAIM_FOR_APPROVAL_NOT_AVAILABLE = "No claim is present for Approval";
+	public static final String CLAIM_NOT_AVAILABLE = "No Claim is available";
 }

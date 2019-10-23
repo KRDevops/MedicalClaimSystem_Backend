@@ -14,6 +14,6 @@ public interface ApprovalService {
 
 	List<ApprovalDto> approve(Long approverId, Integer pageNumber) throws ApproverNotFoundException;
 
-	ResponseDto approve(ApproveRequestDto approveRequestDto) throws MediClaimException, MessagingException;
+	ResponseDto approveOrReject(ApproveRequestDto approveRequestDto) throws MediClaimException, MessagingException;
 
 }
