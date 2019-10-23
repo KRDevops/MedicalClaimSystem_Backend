@@ -3,7 +3,6 @@ package com.hcl.mediclaim.service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -78,12 +77,12 @@ public class ClaimServiceTest {
 				+ "  \"dischargeDate\": \"2019-10-05\",\r\n" + "  \"hospitalId\": 1,\r\n"
 				+ "  \"natureOfAilment\": \"MINOR\",\r\n" + "  \"policyNumber\": 1,\r\n" + "  \"userId\": 1,\r\n"
 				+ "  \"claimAmount\":5500\r\n" + "}";
-		
+
 		source = "{\r\n" + "  \"admissionDate\": \"2019-10-28\",\r\n" + "  \"diagnosis\": \"Malaria\",\r\n"
 				+ "  \"dischargeDate\": \"2019-10-20\",\r\n" + "  \"hospitalId\": 1,\r\n"
 				+ "  \"natureOfAilment\": \"MINOR\",\r\n" + "  \"policyNumber\": 1,\r\n" + "  \"userId\": 1,\r\n"
 				+ "  \"claimAmount\":5500\r\n" + "}";
-		
+
 		user.setUserId(1L);
 		policy.setPolicyNumber(11L);
 		policy.setAvailableAmount(5000.00);
@@ -105,7 +104,8 @@ public class ClaimServiceTest {
 
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		File file = resource.getFile();
-		MockMultipartFile multipartFile = new MockMultipartFile("afrin11","afrin11.pdf","application/pdf", new FileInputStream(file));		
+		MockMultipartFile multipartFile = new MockMultipartFile("afrin11", "afrin11.pdf", "application/pdf",
+				new FileInputStream(file));
 		Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 		Mockito.when(policyRepository.findById(Mockito.any())).thenReturn(Optional.of(policy));
 		Mockito.when(hospitalRepository.findById(Mockito.any())).thenReturn(Optional.of(hospital));
@@ -122,17 +122,19 @@ public class ClaimServiceTest {
 
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		File file = resource.getFile();
-		MockMultipartFile multipartFile = new MockMultipartFile("afrin11","afrin11.pdf","application/pdf", new FileInputStream(file));
+		MockMultipartFile multipartFile = new MockMultipartFile("afrin11", "afrin11.pdf", "application/pdf",
+				new FileInputStream(file));
 		Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 		claimResponseDto = claimServiceImpl.create(multipartFile, claimRequestDto);
 	}
-	
+
 	@Test(expected = MediClaimException.class)
 	public void negativeTestFileFormat() throws IOException, MediClaimException, MessagingException {
 
 		Resource resource = new ClassPathResource("stock.csv");
 		File file = resource.getFile();
-		MockMultipartFile multipartFile = new MockMultipartFile("stock","stock.xlsx","application/pdf", new FileInputStream(file));
+		MockMultipartFile multipartFile = new MockMultipartFile("stock", "stock.xlsx", "application/pdf",
+				new FileInputStream(file));
 		Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 		claimResponseDto = claimServiceImpl.create(multipartFile, claimRequestDto);
 	}
@@ -142,7 +144,8 @@ public class ClaimServiceTest {
 
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		File file = resource.getFile();
-		MockMultipartFile multipartFile = new MockMultipartFile("afrin11","afrin11.pdf","application/pdf", new FileInputStream(file));
+		MockMultipartFile multipartFile = new MockMultipartFile("afrin11", "afrin11.pdf", "application/pdf",
+				new FileInputStream(file));
 		Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 		Mockito.when(policyRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 		claimResponseDto = claimServiceImpl.create(multipartFile, claimRequestDto);
@@ -154,20 +157,22 @@ public class ClaimServiceTest {
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		hospital.setCountry("Singapore");
 		File file = resource.getFile();
-		MockMultipartFile multipartFile = new MockMultipartFile("afrin11","afrin11.pdf","application/pdf", new FileInputStream(file));
+		MockMultipartFile multipartFile = new MockMultipartFile("afrin11", "afrin11.pdf", "application/pdf",
+				new FileInputStream(file));
 		Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 		Mockito.when(policyRepository.findById(Mockito.any())).thenReturn(Optional.of(policy));
 		Mockito.when(hospitalRepository.findById(Mockito.any())).thenReturn(Optional.of(hospital));
 		claimResponseDto = claimServiceImpl.create(multipartFile, claimRequestDto);
 	}
-	
+
 	@Test(expected = MediClaimException.class)
 	public void negativeTestDateDifference() throws IOException, MediClaimException, MessagingException {
 
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		hospital.setCountry("India");
 		File file = resource.getFile();
-		MockMultipartFile multipartFile = new MockMultipartFile("afrin11","afrin11.pdf","application/pdf", new FileInputStream(file));
+		MockMultipartFile multipartFile = new MockMultipartFile("afrin11", "afrin11.pdf", "application/pdf",
+				new FileInputStream(file));
 		Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 		Mockito.when(policyRepository.findById(Mockito.any())).thenReturn(Optional.of(policy));
 		Mockito.when(hospitalRepository.findById(Mockito.any())).thenReturn(Optional.of(hospital));
