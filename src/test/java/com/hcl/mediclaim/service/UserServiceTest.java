@@ -44,8 +44,8 @@ public class UserServiceTest {
 
 	LoginResponseDto userLoginResponseDto = new LoginResponseDto();
 
-	Role optRole = new Role();
-	User optUser = new User();
+	Role approverRole = new Role();
+	User approverUser = new User();
 
 	@Before
 	public void setup() {
@@ -56,15 +56,15 @@ public class UserServiceTest {
 		userLoginResponseDto.setStatusCode(201);
 		userLoginResponseDto.setUserId(1L);
 
-		optRole.setRoleId(2L);
-		optRole.setRoleName("APPROVER");
+		approverRole.setRoleId(2L);
+		approverRole.setRoleName("APPROVER");
 
-		optUser.setUserId(5L);
-		optUser.setRoleId(optRole);
+		approverUser.setUserId(5L);
+		approverUser.setRoleId(approverRole);
 
-		role.setRoleId(2L);
-		role.setRoleName("APPROVER");
-		role.setRoleDescription("APPROVER");
+		role.setRoleId(6L);
+		role.setRoleName("USER");
+		role.setRoleDescription("User Role");
 
 		user.setEmailId("tsb@gmail.com");
 		user.setPassword("balaji123");
@@ -78,7 +78,7 @@ public class UserServiceTest {
 
 		Mockito.when(userRepository.findByEmailIdAndPassword(Mockito.anyString(), Mockito.anyString()))
 				.thenReturn(Optional.of(user));
-		Mockito.when(roleRepository.findByRoleId(Mockito.any())).thenReturn(Optional.of(role));
+		Mockito.when(roleRepository.findByRoleId(Mockito.any())).thenReturn(Optional.of(approverRole));
 		LoginResponseDto userLoginResponseDto = userServiceImpl.login(loginRequest);
 		Assert.assertEquals(Long.valueOf(1L), userLoginResponseDto.getUserId());
 
@@ -89,6 +89,17 @@ public class UserServiceTest {
 
 		Mockito.when(userRepository.findByEmailIdAndPassword(Mockito.anyString(), Mockito.anyString()))
 				.thenReturn(Optional.empty());
+		LoginResponseDto userLoginResponseDto = userServiceImpl.login(loginRequest);
+		Assert.assertEquals(Long.valueOf(1L), userLoginResponseDto.getUserId());
+
+	}
+
+	@Test(expected = ApproverNotFoundException.class)
+	public void negativeTestApproverLogin() throws UserNotFoundException, ApproverNotFoundException {
+
+		Mockito.when(userRepository.findByEmailIdAndPassword(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(Optional.of(user));
+		Mockito.when(roleRepository.findByRoleId(Mockito.any())).thenReturn(Optional.of(role));
 		LoginResponseDto userLoginResponseDto = userServiceImpl.login(loginRequest);
 		Assert.assertEquals(Long.valueOf(1L), userLoginResponseDto.getUserId());
 
