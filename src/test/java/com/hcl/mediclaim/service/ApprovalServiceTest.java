@@ -2,6 +2,8 @@ package com.hcl.mediclaim.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.spy;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -163,7 +165,7 @@ public class ApprovalServiceTest {
 		Mockito.when(claimRepository.findByApproverId(Mockito.any(), Mockito.any())).thenReturn(Optional.of(claims));
 		Mockito.when(userRepository.findByUserId(approverId)).thenReturn(Optional.of(user));
 		Mockito.when(hospitalRepository.findAll()).thenReturn(hosp);
-		List<ApprovalDto> response = approvalService.approve(2l, 0);
+		List<ApprovalDto> response = approvalService.viewApprovals(2l, 0);
 		assertEquals(response.size(), claims.size());
 	}
 
@@ -198,7 +200,7 @@ public class ApprovalServiceTest {
 				.thenReturn(Optional.of(claims));
 		Mockito.when(userRepository.findByUserId(approverId)).thenReturn(Optional.of(user));
 		Mockito.when(hospitalRepository.findAll()).thenReturn(hosp);
-		List<ApprovalDto> response = approvalService.approve(2l, 0);
+		List<ApprovalDto> response = approvalService.viewApprovals(2l, 0);
 		assertEquals(response.size(), claims.size());
 	}
 
@@ -242,6 +244,23 @@ public class ApprovalServiceTest {
 		assertEquals(new Integer(200), responseUpdateDto.getStatusCode());
 	}
 
+	@Test(expected = MediClaimException.class)
+	public void negativeTestApproveDeviation() throws IOException, MediClaimException, MessagingException {
+		Claim claim = new Claim();
+
+		claim.setClaimId(10L);
+		claim.setUserId(user);
+		claim.setPolicyNumber(policy);
+		claim.setHospitalId(hospital);
+		claim.setDeviationPercentage(5);
+		claim.setClaimAmount(10000.00);
+
+		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
+		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
+		ResponseDto responseUpdateDto = approvalService.approveOrReject(approveRequestDto);
+		assertEquals(new Integer(200), responseUpdateDto.getStatusCode());
+	}
+
 	@Test
 	public void testRejectClaim() throws IOException, MediClaimException, MessagingException {
 		ApproveRequestDto approveRequestDto = new ApproveRequestDto();
@@ -256,7 +275,7 @@ public class ApprovalServiceTest {
 	}
 
 	@Test(expected = MediClaimException.class)
-	public void testPassClaimException() throws IOException, MediClaimException, MessagingException {
+	public void testNegativePassClaimException() throws IOException, MediClaimException, MessagingException {
 		ApproveRequestDto approveRequestDto = new ApproveRequestDto();
 		approveRequestDto.setApproverId(1L);
 		approveRequestDto.setClaimId(10L);
@@ -277,8 +296,21 @@ public class ApprovalServiceTest {
 		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
 		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
 		Mockito.when(userRepository.findByRoleId(Mockito.any())).thenReturn(Optional.of(seniorApproverList));
-		ResponseDto approveResponseDto=approvalService.approveOrReject(approveRequestDto);
+		ResponseDto approveResponseDto = approvalService.approveOrReject(approveRequestDto);
 		assertEquals(new Integer(200), approveResponseDto.getStatusCode());
+	}
+
+	@Test(expected = MediClaimException.class)
+	public void negativeTestApproverClaim() throws IOException, MediClaimException, MessagingException {
+		ApproveRequestDto approveRequestDto = new ApproveRequestDto();
+		approveRequestDto.setApproverId(3L);
+		approveRequestDto.setClaimId(10L);
+		approveRequestDto.setRemarks("Pass");
+		approveRequestDto.setStatus("PASS");
+		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.empty());
+		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
+		Mockito.when(userRepository.findByRoleId(Mockito.any())).thenReturn(Optional.of(seniorApproverList));
+		approvalService.approveOrReject(approveRequestDto);
 	}
 
 	@Test
@@ -323,5 +355,22 @@ public class ApprovalServiceTest {
 		ResponseDto responseDto = approvalService.approveOrReject(approveRequestDto);
 		assertEquals(new Integer(200), responseDto.getStatusCode());
 	}
+
+	/*
+	 * @Test(expected = MediClaimException.class) public void
+	 * negativeTestSeniorApproverClaim() throws IOException, MediClaimException,
+	 * MessagingException { ApprovalServiceImpl spyApprovalService =
+	 * spy(ApprovalServiceImpl.class); // doReturn().when(spyApprovalService)
+	 * ApproveRequestDto approveRequestDto = new ApproveRequestDto();
+	 * approveRequestDto.setApproverId(2L); approveRequestDto.setClaimId(10L);
+	 * approveRequestDto.setRemarks("Reject");
+	 * approveRequestDto.setStatus("REJECT");
+	 * doNothing().when(spyApprovalService).approveOrReject(Mockito.any());
+	 * Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId()))
+	 * .thenReturn(Optional.of(seniorApprover));
+	 * 
+	 * // Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(
+	 * Optional.empty()); approvalService.approveOrReject(approveRequestDto); }
+	 */
 
 }

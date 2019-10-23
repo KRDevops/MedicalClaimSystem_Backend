@@ -17,7 +17,9 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<sonar.coverage.exclusions>**/entity/*,**/dto/*,**/model/*,**/exception/*,**/api/*,**/util/*,**/enums/*</sonar.coverage.exclusions>
+		<sonar.exclusions>
+			**/entity/*,**/dto/*,**/model/*,**/exception/*,**/api/*,**/util/*,**/enums/*,**/config/*
+		</sonar.exclusions>
 	</properties>
 
 	<dependencies>
@@ -98,10 +100,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>

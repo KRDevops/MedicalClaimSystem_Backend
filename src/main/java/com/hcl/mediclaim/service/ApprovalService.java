@@ -12,7 +12,7 @@ import com.hcl.mediclaim.exception.MediClaimException;
 
 public interface ApprovalService {
 
-	List<ApprovalDto> approve(Long approverId, Integer pageNumber) throws ApproverNotFoundException;
+	List<ApprovalDto> viewApprovals(Long approverId, Integer pageNumber) throws ApproverNotFoundException;
 
 	ResponseDto approveOrReject(ApproveRequestDto approveRequestDto) throws MediClaimException, MessagingException;
 
