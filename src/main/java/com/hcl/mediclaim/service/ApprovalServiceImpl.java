@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.hcl.mediclaim.dto.ApprovalDto;
-import com.hcl.mediclaim.dto.ApprovalResponseDto;
 import com.hcl.mediclaim.dto.ApproveRequestDto;
 import com.hcl.mediclaim.dto.ResponseDto;
 import com.hcl.mediclaim.entity.Claim;
@@ -21,6 +20,7 @@ import com.hcl.mediclaim.entity.Hospital;
 import com.hcl.mediclaim.entity.Policy;
 import com.hcl.mediclaim.entity.Role;
 import com.hcl.mediclaim.entity.User;
+import com.hcl.mediclaim.exception.ApproverNotFoundException;
 import com.hcl.mediclaim.exception.MediClaimException;
 import com.hcl.mediclaim.repository.ClaimRepository;
 import com.hcl.mediclaim.repository.HospitalRepository;
@@ -48,54 +48,43 @@ public class ApprovalServiceImpl implements ApprovalService {
 	@Autowired
 	JavaMailUtil javaMailUtil;
 
+	/**
+	 * This method is used to fetch the approvals list for the loggedIn approver
+	 * 
+	 * @param approverId
+	 * @param pageNumber
+	 * @return ApprovalRepsoneDto
+	 * @throws ApproverNotFoundException
+	 */
 	@Override
-	public ApprovalResponseDto approve(Long approverId, Integer pageNumber) {
-
+	public List<ApprovalDto> approve(Long approverId, Integer pageNumber) throws ApproverNotFoundException {
+		log.info("entered into approvalService");
 		User user = new User();
 		user.setUserId(approverId);
 
-		Pageable paging = PageRequest.of(pageNumber, 3);
+		Pageable paging = PageRequest.of(pageNumber, MediClaimUtil.SIZE);
 
-		List<Claim> claim4 = claimRepository.findByApproverId(user);
-		List<Claim> claims = claimRepository.findByApproverId(user, paging);
-
-		List<Hospital> hos = hospitalRepository.findAll();
-		List<ApprovalDto> dto = new ArrayList<>();
-		ApprovalResponseDto dtos = new ApprovalResponseDto();
-		claims.forEach(claim1 -> {
-			ApprovalDto dto1 = new ApprovalDto();
-			dto1.setUserId(claim1.getUserId().getUserId());
-			dto1.setAdmissionDate(claim1.getAdmissionDate());
-			dto1.setClaimAmount(claim1.getClaimAmount());
-			dto1.setClaimDate(claim1.getClaimDate());
-			dto1.setClaimId(claim1.getClaimId());
-			dto1.setDeviationPercent(claim1.getDeviationPercentage());
-			dto1.setDiagnosis(claim1.getDiagnosis());
-			dto1.setDischargeDate(claim1.getDischargeDate());
-			dto1.setHospitalName("hello");
-			dto1.setClaimStatus(claim1.getClaimStatus());
-			dto1.setDeviationPercent(claim1.getDeviationPercentage());
-			dto1.setDiagnosis(claim1.getDiagnosis());
-			dto1.setDischargeDate(claim1.getDischargeDate());
-			hos.forEach(hos1 -> {
-				if (Long.compare(hos1.getHospitalId(), claim1.getHospitalId().getHospitalId()) >= 0) {
-					dto1.setHospitalName(hos1.getHospitalName());
+		Optional<List<Claim>> claims = claimRepository.findByApproverId(user, paging);
+		if (!claims.isPresent()) {
+			throw new ApproverNotFoundException(MediClaimUtil.APPROVER_NOT_FOUND);
+		}
+		List<Hospital> hospitals = hospitalRepository.findAll();
+		List<ApprovalDto> approvalDtos = new ArrayList<>();
+		claims.get().forEach(claim -> {
+			ApprovalDto approvalDto = new ApprovalDto();
+			BeanUtils.copyProperties(claim, approvalDto);
+			hospitals.forEach(hospital -> {
+				if (hospital.getHospitalId().equals(claim.getHospitalId())) {
+					approvalDto.setHospitalName(hospital.getHospitalName());
 				}
 			});
-			dto1.setPolicyNumber(claim1.getPolicyNumber().getPolicyNumber());
-			dto1.setRemarks(claim1.getRemarks());
-			dto.add(dto1);
-			dtos.setClaim(dto);
+			approvalDto.setUserId(claim.getUserId().getUserId());
+			approvalDto.setPolicyNumber(claim.getPolicyNumber().getPolicyNumber());
+			approvalDtos.add(approvalDto);
 		});
-
-		dtos.setStatusCode(200);
-		dtos.setMessage("success");
-		dtos.setCount(claim4.size());
-		dtos.setMessage("SUCCESS");
-		dtos.setStatusCode(200);
-		return dtos;
-
+		return approvalDtos;
 	}
+
 
 	/**
 	 * @throws MediClaimException
@@ -131,41 +120,47 @@ public class ApprovalServiceImpl implements ApprovalService {
 					responseDto.setMessage(MediClaimUtil.APPROVED);
 					responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
 				} else {
-					responseDto.setMessage(MediClaimUtil.PASS);
+					responseDto.setMessage(MediClaimUtil.MOVE);
 					responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
 				}
 			} else if (approver.getRoleId().getRoleId().equals(MediClaimUtil.TWO)
 					&& approveRequestDto.getStatus().equals(MediClaimUtil.REJECT)) {
 				claimRepository.updateClaimStatusAndRemarksByClaimId(approveRequestDto.getClaimId(),
 						approveRequestDto.getStatus(), approveRequestDto.getRemarks());
-				javaMailUtil.sendEmail(claim.get().getUserId().getEmailId(), MediClaimUtil.USER_REJECTED_MESSAGE,
-						MediClaimUtil.REJECTED);
 				responseDto.setMessage(MediClaimUtil.REJECTED);
 				responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
-
-			} else if (approveRequestDto.getStatus().equals(MediClaimUtil.PASS) && seniorApprovers.isPresent()) {
+				javaMailUtil.sendEmail(claim.get().getUserId().getEmailId(), MediClaimUtil.USER_REJECTED_MESSAGE,
+						MediClaimUtil.REJECTED);
+			} else if (approveRequestDto.getStatus().equals(MediClaimUtil.PASS)) {
 
 				Optional<User> seniorApprover = seniorApprovers.get().stream().findAny();
 				if (seniorApprover.isPresent()) {
-					claimRepository.updateClaimStatusAndSeniorApproverIdAndRemarksByClaimId(
-							seniorApprover.get().getUserId(), approveRequestDto.getClaimId(), MediClaimUtil.PENDING,
-							approveRequestDto.getRemarks());
+					claimRepository.updateClaimStatusAndSeniorApproverIdAndRemarksByClaimId(seniorApprover.get(),
+							approveRequestDto.getClaimId(), MediClaimUtil.PENDING, approveRequestDto.getRemarks());
 				} else {
 					throw new MediClaimException(MediClaimUtil.SENIOR_APPROVER_NOT_PRESENT);
 				}
-				responseDto.setMessage(MediClaimUtil.PASSED);
+				responseDto.setMessage(MediClaimUtil.PASS);
 				responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
 			}
 
 			if (approver.getRoleId().getRoleId().equals(MediClaimUtil.THREE)) {
 				claimRepository.updateClaimStatusAndRemarksByClaimId(approveRequestDto.getClaimId(),
 						approveRequestDto.getStatus(), approveRequestDto.getRemarks());
-				if (approveRequestDto.getStatus().equals(MediClaimUtil.APPROVE))
+
+				if (approveRequestDto.getStatus().equals(MediClaimUtil.APPROVE)) {
 					javaMailUtil.sendEmail(claim.get().getUserId().getEmailId(), MediClaimUtil.USER_APPROVED_MESSAGE,
 							MediClaimUtil.APPROVED);
-				else if (approveRequestDto.getStatus().equals(MediClaimUtil.REJECT))
+					policy.setAvailableAmount(
+							claim.get().getPolicyNumber().getAvailableAmount() - claim.get().getClaimAmount());
+					policyRepository.save(policy);
+				} else if (approveRequestDto.getStatus().equals(MediClaimUtil.REJECT)) {
 					javaMailUtil.sendEmail(claim.get().getUserId().getEmailId(), MediClaimUtil.USER_REJECTED_MESSAGE,
 							MediClaimUtil.REJECTED);
+				}
+
+				responseDto.setMessage(MediClaimUtil.APRROVEORREJECTBYSENIOR);
+				responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
 				log.info("Senior level Approval is successful");
 			}
 		}

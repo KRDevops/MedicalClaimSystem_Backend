@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.hcl.mediclaim.dto.ApprovalDto;
 import com.hcl.mediclaim.dto.ApprovalResponseDto;
 import com.hcl.mediclaim.entity.Claim;
 import com.hcl.mediclaim.entity.Hospital;
@@ -57,10 +58,9 @@ public class ApprovalServiceTest {
 
 		List<Claim> claims = new ArrayList<>();
 		claims.add(claim);
-		Mockito.when(claimRepository.findByApproverId(Mockito.any())).thenReturn(claims);
-		Mockito.when(claimRepository.findByApproverId(Mockito.any(), Mockito.any())).thenReturn(claims);
+		Mockito.when(claimRepository.findByApproverId(Mockito.any(), Mockito.any())).thenReturn(Optional.of(claims));
 		Mockito.when(hospitalRepository.findAll()).thenReturn(hosp);
-		ApprovalResponseDto response = approvalService.approve(2l, 0);
-		assertEquals(response.getStatusCode(), dto.getStatusCode());
+		List<ApprovalDto> response = approvalService.approve(2l, 0);
+		assertEquals(response.size(), claims.size());
 	}
 }

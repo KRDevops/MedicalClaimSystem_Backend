@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @RestController
-@RequestMapping("/cms")
 @CrossOrigin(allowedHeaders = { "*", "*/" }, origins = { "*", "*/" })
 @Slf4j
 public class PolicyController {

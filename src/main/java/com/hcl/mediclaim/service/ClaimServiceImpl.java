@@ -100,6 +100,7 @@ public class ClaimServiceImpl implements ClaimService {
 		Optional<Policy> policy = policyRepository.findById(claimRequest.getPolicyNumber());
 		Optional<Hospital> hospital = hospitalRepository.findById(claimRequest.getHospitalId());
 		
+		String ff=FilenameUtils.getExtension(documents.getOriginalFilename());
 		//Check File Format
 		if(!FilenameUtils.getExtension(documents.getOriginalFilename()).equalsIgnoreCase(MediClaimUtil.FILE_EXTENSION)) {
 			throw new MediClaimException(MediClaimUtil.FILE_FORMAT_INVALID);

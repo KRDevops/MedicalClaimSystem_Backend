@@ -20,6 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hcl.mediclaim.dto.ClaimResponseDto;
 import com.hcl.mediclaim.entity.Claim;
@@ -97,13 +98,14 @@ public class ClaimServiceTest {
 
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		File file = resource.getFile();
-		MockMultipartFile multipartFile = new MockMultipartFile("file", new FileInputStream(file));
+		MockMultipartFile multipartFile = new MockMultipartFile("afrin11","afrin11.pdf","application/pdf", new FileInputStream(file));		
 		Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.of(user));
 		Mockito.when(policyRepository.findById(Mockito.any())).thenReturn(Optional.of(policy));
 		Mockito.when(hospitalRepository.findById(Mockito.any())).thenReturn(Optional.of(hospital));
 		Mockito.when(claimRepository.save(Mockito.any())).thenReturn(claim);
 		Mockito.when(roleRepository.findByRoleName(Mockito.any())).thenReturn(Optional.of(role));
 		Mockito.when(userRepository.findByRoleId(Mockito.any())).thenReturn(Optional.of(approverList));
+		Mockito.when(claimRepository.findTopByOrderByClaimIdDesc()).thenReturn(claim);
 		claimResponseDto = claimServiceImpl.create(multipartFile, claimRequestDto);
 		Assert.assertEquals(Long.valueOf(10), claimResponseDto.getClaimId());
 	}
@@ -113,7 +115,7 @@ public class ClaimServiceTest {
 
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		File file = resource.getFile();
-		MockMultipartFile multipartFile = new MockMultipartFile("file", new FileInputStream(file));
+		MockMultipartFile multipartFile = new MockMultipartFile("afrin11","afrin11.pdf","application/pdf", new FileInputStream(file));
 		Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 		claimResponseDto = claimServiceImpl.create(multipartFile, claimRequestDto);
 	}
@@ -123,7 +125,7 @@ public class ClaimServiceTest {
 
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		File file = resource.getFile();
-		MockMultipartFile multipartFile = new MockMultipartFile("file", new FileInputStream(file));
+		MockMultipartFile multipartFile = new MockMultipartFile("afrin11","afrin11.pdf","application/pdf", new FileInputStream(file));
 		Mockito.when(policyRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 		claimResponseDto = claimServiceImpl.create(multipartFile, claimRequestDto);
 	}
@@ -133,7 +135,7 @@ public class ClaimServiceTest {
 
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		File file = resource.getFile();
-		MockMultipartFile multipartFile = new MockMultipartFile("file", new FileInputStream(file));
+		MockMultipartFile multipartFile = new MockMultipartFile("afrin11","afrin11.pdf","application/pdf", new FileInputStream(file));
 		Mockito.when(hospitalRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 		claimResponseDto = claimServiceImpl.create(multipartFile, claimRequestDto);
 	}

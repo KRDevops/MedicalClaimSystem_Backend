@@ -26,7 +26,7 @@ public class MediClaimUtil {
 	public static final String APPROVE_SUCCESS = "The claim amount has been approved successfully";
 	public static final String APPROVED = "APPROVED";
 	public static final String REJECTED = "REJECTED";
-	public static final String PENDING = "PENDING";
+	public static final String PENDING = "PASS";
 	public static final String SUBMITTED = "SUBMITTED";
 	public static final String USER_APPROVED_MESSAGE = "Your claim is approved!! Payment is in progress.";
 	public static final String USER_REJECTED_MESSAGE = "Your claim is rejected!! Please provide more details for approval";
@@ -48,6 +48,10 @@ public class MediClaimUtil {
 	public static final String SUBMIT_APPROVER_SUBJECT = "MEDICLAIM APPROVAL REQUEST";
 	public static final String COUNTRY = "India";
 	public static final String SENIOR_APPROVER_NOT_PRESENT = "Senior Approver is not present";
+
 	public static final String INVALID_DATE_DIFFERENCE = "Admission Date Should Be Lesser Than Discharge Date";
 	public static final String FILE_FORMAT_INVALID = "Invalid File Format";
+	public static final String MOVE = "MOVE";
+	public static final String APRROVEORREJECTBYSENIOR = "Approve/Reject by Senior Approver is done";
+	public static final Integer SIZE = 10;
 }
