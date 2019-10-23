@@ -108,29 +108,31 @@ public class ApprovalServiceImpl implements ApprovalService {
 	public ResponseDto approveOrReject(ApproveRequestDto approveRequestDto)
 			throws MediClaimException, MessagingException {
 		log.info("approve method in Approval Service started");
-		User approver = userRepository.findByUserId(approveRequestDto.getApproverId());
+		Optional<User> approver = userRepository.findByUserId(approveRequestDto.getApproverId());
 		Optional<Claim> claim = claimRepository.findByClaimId(approveRequestDto.getClaimId());
 		Policy policy = new Policy();
 		ResponseDto responseDto = null;
 		Optional<List<User>> seniorApprovers = userRepository.findByRoleId(
 				new Role(MediClaimUtil.THREE, MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE));
 		if (claim.isPresent()) {
-			// Check if the role is approver
-			if (approver.getRoleId().getRoleId().equals(MediClaimUtil.TWO)) {
-				// Execute this if statement if approver action is APPROVE
-				if (approveRequestDto.getStatus().equals(MediClaimUtil.APPROVE)) {
-					responseDto = approveClaim(claim, policy, approveRequestDto);
-				} else if (approveRequestDto.getStatus().equals(MediClaimUtil.REJECT)) {
-					// Execute this if statement if approver action is REJECT
-					responseDto = rejectClaim(approveRequestDto, claim);
-				} else if (approveRequestDto.getStatus().equals(MediClaimUtil.PASS)) {
-					// Execute this if statement if approver action is PASS i.e., moving claim to
-					// senior approval.
-					responseDto = passClaim(seniorApprovers, approveRequestDto);
+			if (approver.isPresent()) {
+				// Check if the role is approver
+				if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.TWO)) {
+					// Execute this if statement if approver action is APPROVE
+					if (approveRequestDto.getStatus().equals(MediClaimUtil.APPROVE)) {
+						responseDto = approveClaim(claim, policy, approveRequestDto);
+					} else if (approveRequestDto.getStatus().equals(MediClaimUtil.REJECT)) {
+						// Execute this if statement if approver action is REJECT
+						responseDto = rejectClaim(approveRequestDto, claim);
+					} else if (approveRequestDto.getStatus().equals(MediClaimUtil.PASS)) {
+						// Execute this if statement if approver action is PASS i.e., moving claim to
+						// senior approval.
+						responseDto = passClaim(seniorApprovers, approveRequestDto);
+					}
+				} else if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.THREE)) {
+					// Execute this if statement if it is senior level approval.
+					responseDto = seniorApproveClaim(approveRequestDto, claim, policy);
 				}
-			} else if (approver.getRoleId().getRoleId().equals(MediClaimUtil.THREE)) {
-				// Execute this if statement if it is senior level approval.
-				responseDto = seniorApproveClaim(approveRequestDto, claim, policy);
 			}
 		} else {
 			throw new MediClaimException(MediClaimUtil.CLAIM_NOT_AVAILABLE);
