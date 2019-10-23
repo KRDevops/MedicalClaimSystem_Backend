@@ -277,7 +277,8 @@ public class ApprovalServiceTest {
 		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
 		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
 		Mockito.when(userRepository.findByRoleId(Mockito.any())).thenReturn(Optional.of(seniorApproverList));
-		approvalService.approveOrReject(approveRequestDto);
+		ResponseDto approveResponseDto=approvalService.approveOrReject(approveRequestDto);
+		assertEquals(new Integer(200), approveResponseDto.getStatusCode());
 	}
 
 	@Test
@@ -296,12 +297,6 @@ public class ApprovalServiceTest {
 		claim.setClaimAmount(2000.00);
 		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId()))
 				.thenReturn(Optional.of(seniorApprover));
-//		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
-		/*
-		 * Mockito.when(userRepository.findByRoleId( new Role(MediClaimUtil.THREE,
-		 * MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
-		 * .thenReturn(Optional.of(seniorApproverList));
-		 */
 		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
 		Mockito.when(policyRepository.save(Mockito.any())).thenReturn(policy);
 		ResponseDto responseDto = approvalService.approveOrReject(approveRequestDto);
