@@ -9,8 +9,8 @@ import com.hcl.mediclaim.exception.MediClaimException;
 
 public interface ApprovalService {
 
-	ApprovalResponseDto approve(Long approverId, Integer pageNumber);
+	ApprovalResponseDto viewClaimRequests(Long approverId, Integer pageNumber);
 
-	ResponseDto approve(ApproveRequestDto approveRequestDto) throws MediClaimException, MessagingException;
+	ResponseDto approveOrReject(ApproveRequestDto approveRequestDto) throws MediClaimException, MessagingException;
 
 }

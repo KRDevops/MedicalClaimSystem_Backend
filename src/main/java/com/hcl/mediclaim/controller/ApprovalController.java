@@ -18,7 +18,6 @@ import com.hcl.mediclaim.dto.ApproveRequestDto;
 import com.hcl.mediclaim.dto.ResponseDto;
 import com.hcl.mediclaim.exception.MediClaimException;
 import com.hcl.mediclaim.service.ApprovalService;
-import com.hcl.mediclaim.util.MediClaimUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +31,7 @@ public class ApprovalController {
 
 	@GetMapping(value = "/approvals/{approverId}")
 	public ResponseEntity approval(@PathVariable Long approverId, @RequestParam Integer pageNumber) {
-		return new ResponseEntity(approvalService.approve(approverId, pageNumber), HttpStatus.OK);
+		return new ResponseEntity(approvalService.viewClaimRequests(approverId, pageNumber), HttpStatus.OK);
 
 	}
 
@@ -40,7 +39,7 @@ public class ApprovalController {
 	public ResponseEntity approve(@RequestBody ApproveRequestDto approveRequestDto)
 			throws MediClaimException, MessagingException {
 		log.info("approve method in ApprovalController started");
-		ResponseDto responseDto = approvalService.approve(approveRequestDto);
+		ResponseDto responseDto = approvalService.approveOrReject(approveRequestDto);
 		log.info("approve method in ApprovalController ended");
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}

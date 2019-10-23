@@ -36,10 +36,6 @@ public interface ClaimRepository extends JpaRepository<Claim, Long> {
 
 	List<Claim> findByApproverId(User user);
 
-	//List<Claim> findBySeniorApproverId(User user, Pageable paging);
-
-	//List<Claim> findBySeniorApproverId(User user);
-
 	List<Claim> findByApproverIdOrSeniorApproverId(User user);
 
 	List<Claim> findByApproverIdOrSeniorApproverId(User user, Pageable paging);
