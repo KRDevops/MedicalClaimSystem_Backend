@@ -45,6 +45,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 	UserRepository userRepository;
 	@Autowired
 	PolicyRepository policyRepository;
+
 	@Autowired
 	JavaMailUtil javaMailUtil;
 
@@ -61,20 +62,30 @@ public class ApprovalServiceImpl implements ApprovalService {
 		log.info("entered into approvalService");
 		User user = new User();
 		user.setUserId(approverId);
-
 		Pageable paging = PageRequest.of(pageNumber, MediClaimUtil.SIZE);
+		Optional<User> user1 = userRepository.findByUserId(approverId);
+		if (!user1.isPresent()) {
+			throw new ApproverNotFoundException(MediClaimUtil.APPROVERNOT_FOUND);
+		}
+		List<Claim> claim1 = new ArrayList<>();
+		Optional<List<Claim>> claims = Optional.of(claim1);
+		
+		List<ApprovalDto> approvalDtos = new ArrayList<>();
+		List<Hospital> hospitals = hospitalRepository.findAll();
+		if (user1.get().getRoleId().getRoleId().equals(MediClaimUtil.TWO)) {
+			claims = claimRepository.findByApproverId(user, paging);
 
-		Optional<List<Claim>> claims = claimRepository.findByApproverId(user, paging);
+		} else {
+			claims = claimRepository.findBySeniorApproverId(user, paging);
+		}
 		if (!claims.isPresent()) {
 			throw new ApproverNotFoundException(MediClaimUtil.APPROVER_NOT_FOUND);
 		}
-		List<Hospital> hospitals = hospitalRepository.findAll();
-		List<ApprovalDto> approvalDtos = new ArrayList<>();
 		claims.get().forEach(claim -> {
 			ApprovalDto approvalDto = new ApprovalDto();
 			BeanUtils.copyProperties(claim, approvalDto);
 			hospitals.forEach(hospital -> {
-				if (hospital.getHospitalId().equals(claim.getHospitalId())) {
+				if (hospital.getHospitalId().equals(claim.getHospitalId().getHospitalId())) {
 					approvalDto.setHospitalName(hospital.getHospitalName());
 				}
 			});
@@ -85,7 +96,6 @@ public class ApprovalServiceImpl implements ApprovalService {
 		return approvalDtos;
 	}
 
-
 	/**
 	 * @throws MediClaimException
 	 * @throws MessagingException
@@ -94,14 +104,14 @@ public class ApprovalServiceImpl implements ApprovalService {
 	@Override
 	public ResponseDto approve(ApproveRequestDto approveRequestDto) throws MediClaimException, MessagingException {
 		log.info("approve method in Approval Service started");
-		User approver = userRepository.findByUserId(approveRequestDto.getApproverId());
+		Optional<User> approver = userRepository.findByUserId(approveRequestDto.getApproverId());
 		Optional<Claim> claim = claimRepository.findByClaimId(approveRequestDto.getClaimId());
 		Policy policy = new Policy();
 		ResponseDto responseDto = new ResponseDto();
 		Optional<List<User>> seniorApprovers = userRepository.findByRoleId(
 				new Role(MediClaimUtil.THREE, MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE));
 		if (claim.isPresent()) {
-			if (approver.getRoleId().getRoleId().equals(MediClaimUtil.TWO)
+			if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.TWO)
 					&& approveRequestDto.getStatus().equals(MediClaimUtil.APPROVE)) {
 				if (claim.get().getDeviationPercentage() < MediClaimUtil.TEN) {
 					claimRepository.updateClaimStatusAndRemarksByClaimId(approveRequestDto.getClaimId(),
@@ -123,7 +133,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 					responseDto.setMessage(MediClaimUtil.MOVE);
 					responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
 				}
-			} else if (approver.getRoleId().getRoleId().equals(MediClaimUtil.TWO)
+			} else if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.TWO)
 					&& approveRequestDto.getStatus().equals(MediClaimUtil.REJECT)) {
 				claimRepository.updateClaimStatusAndRemarksByClaimId(approveRequestDto.getClaimId(),
 						approveRequestDto.getStatus(), approveRequestDto.getRemarks());
@@ -144,7 +154,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 				responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
 			}
 
-			if (approver.getRoleId().getRoleId().equals(MediClaimUtil.THREE)) {
+			if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.THREE)) {
 				claimRepository.updateClaimStatusAndRemarksByClaimId(approveRequestDto.getClaimId(),
 						approveRequestDto.getStatus(), approveRequestDto.getRemarks());
 

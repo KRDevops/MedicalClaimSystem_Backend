@@ -38,6 +38,7 @@ public class MediClaimUtil {
 	public static final String PASS = "PASS";
 	public static final String PASSED = "PASSED";
 	public static final String AVAILABLE_LOW_EXCEPTION = "Available balance is low";
+	public static final String APPROVERNOT_FOUND="Approver is not found";
 
 	public static final String HOSPITAL_NETWORK = "Hospital Found Outside Network";
 	public static final String ATTACHMENT_PATH = "src/main/resources";
