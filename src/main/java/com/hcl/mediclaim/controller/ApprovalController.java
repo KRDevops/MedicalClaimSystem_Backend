@@ -44,25 +44,34 @@ public class ApprovalController {
 	 *
 	 */
 	@GetMapping(value = "/approvals/{approverId}")
-	public ResponseEntity approval(@PathVariable Long approverId, @RequestParam Integer pageNumber)
+	public ResponseEntity<ApprovalResponseDto> view(@PathVariable Long approverId, @RequestParam Integer pageNumber)
 			throws ApproverNotFoundException {
 		log.info("entered into approval controller");
-		List<ApprovalDto> approvalDto = approvalService.approve(approverId, pageNumber);
+		List<ApprovalDto> approvalDto = approvalService.viewApprovals(approverId, pageNumber);
 		ApprovalResponseDto approvalResponseDto = new ApprovalResponseDto();
 		approvalResponseDto.setClaim(approvalDto);
 		approvalResponseDto.setMessage("success");
 		approvalResponseDto.setStatusCode(200);
-		return new ResponseEntity(approvalResponseDto, HttpStatus.OK);
+		return new ResponseEntity<>(approvalResponseDto, HttpStatus.OK);
 
 	}
 
+	/**
+	 * This method is used to review and approve/reject the claims submitted by
+	 * users
+	 * 
+	 * @param approveRequestDto
+	 * @return {@link ResponseEntity}
+	 * @throws MediClaimException
+	 * @throws MessagingException
+	 */
 	@PutMapping("/approvals")
-	public ResponseEntity approve(@RequestBody ApproveRequestDto approveRequestDto)
+	public ResponseDto review(@RequestBody ApproveRequestDto approveRequestDto)
 			throws MediClaimException, MessagingException {
 		log.info("approve method in ApprovalController started");
 		ResponseDto responseDto = approvalService.approveOrReject(approveRequestDto);
 		log.info("approve method in ApprovalController ended");
-		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+		return responseDto;
 	}
 
 }

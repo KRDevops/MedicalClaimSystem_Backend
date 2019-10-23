@@ -60,23 +60,23 @@ public class ApprovalServiceImpl implements ApprovalService {
 	/**
 	 * This method is used to fetch the approvals list for the loggedIn approver
 	 * 
+	 * @author KonReddy Charan
 	 * @param approverId
 	 * @param pageNumber
 	 * @return ApprovalRepsoneDto
 	 * @throws ApproverNotFoundException
 	 */
 	@Override
-	public List<ApprovalDto> approve(Long approverId, Integer pageNumber) throws ApproverNotFoundException {
+	public List<ApprovalDto> viewApprovals(Long approverId, Integer pageNumber) throws ApproverNotFoundException {
 		log.info("entered into approvalService");
 		User user = new User();
 		user.setUserId(approverId);
+		Optional<List<Claim>> claims;
 		Pageable paging = PageRequest.of(pageNumber, MediClaimUtil.SIZE);
 		Optional<User> user1 = userRepository.findByUserId(approverId);
 		if (!user1.isPresent()) {
 			throw new ApproverNotFoundException(MediClaimUtil.APPROVER_NOT_FOUND);
 		}
-		
-		Optional<List<Claim>> claims = Optional.empty();
 
 		List<ApprovalDto> approvalDtos = new ArrayList<>();
 		List<Hospital> hospitals = hospitalRepository.findAll();
@@ -126,27 +126,27 @@ public class ApprovalServiceImpl implements ApprovalService {
 		Optional<List<User>> seniorApprovers = userRepository.findByRoleId(
 				new Role(MediClaimUtil.THREE, MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE));
 		if (claim.isPresent()) {
-			if(approver.isPresent()) {
-			// Check if the role is approver
-			if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.TWO)) {
-				// Execute this if statement if approver action is APPROVE
-				if (approveRequestDto.getStatus().equals(MediClaimUtil.APPROVE)) {
-					responseDto = approveClaim(claim, policy, approveRequestDto);
-				} else if (approveRequestDto.getStatus().equals(MediClaimUtil.REJECT)) {
-					// Execute this if statement if approver action is REJECT
-					responseDto = rejectClaim(approveRequestDto, claim);
-				} else if (approveRequestDto.getStatus().equals(MediClaimUtil.PASS)) {
-					// Execute this if statement if approver action is PASS i.e., moving claim to
-					// senior approval.
-					responseDto = passClaim(seniorApprovers, approveRequestDto);
+			if (approver.isPresent()) {
+				// Check if the role is approver
+				if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.TWO)) {
+					// Execute this if statement if approver action is APPROVE
+					if (approveRequestDto.getStatus().equals(MediClaimUtil.APPROVE)) {
+						responseDto = approveClaim(claim, policy, approveRequestDto);
+					} else if (approveRequestDto.getStatus().equals(MediClaimUtil.REJECT)) {
+						// Execute this if statement if approver action is REJECT
+						responseDto = rejectClaim(approveRequestDto, claim);
+					} else if (approveRequestDto.getStatus().equals(MediClaimUtil.PASS)) {
+						// Execute this if statement if approver action is PASS i.e., moving claim to
+						// senior approval.
+						responseDto = passClaim(seniorApprovers, approveRequestDto);
+					}
+				} else if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.THREE)) {
+					// Execute this if statement if it is senior level approval.
+					responseDto = seniorApproveClaim(approveRequestDto, claim, policy);
 				}
-			} else if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.THREE)) {
-				// Execute this if statement if it is senior level approval.
-				responseDto = seniorApproveClaim(approveRequestDto, claim, policy);
+			} else {
+				throw new MediClaimException(MediClaimUtil.APPROVER_NOT_FOUND);
 			}
-		}else {
-			throw new MediClaimException(MediClaimUtil.APPROVER_NOT_FOUND);
-		}
 		} else {
 			throw new MediClaimException(MediClaimUtil.CLAIM_NOT_AVAILABLE);
 		}
@@ -214,8 +214,6 @@ public class ApprovalServiceImpl implements ApprovalService {
 			if (seniorApprover.isPresent()) {
 				claimRepository.updateClaimStatusAndSeniorApproverIdAndRemarksByClaimId(seniorApprover.get(),
 						approveRequestDto.getClaimId(), MediClaimUtil.PENDING, approveRequestDto.getRemarks());
-			} else {
-				throw new MediClaimException(MediClaimUtil.SENIOR_APPROVER_NOT_PRESENT);
 			}
 			responseDto.setMessage(MediClaimUtil.PASS);
 			responseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
