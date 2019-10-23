@@ -83,6 +83,13 @@ public class UserServiceTest {
 		Assert.assertEquals(Long.valueOf(1L), userLoginResponseDto.getUserId());
 
 	}
-
-
+	
+	@Test(expected=UserNotFoundException.class)
+	public void negativeTestUser() throws UserNotFoundException, ApproverNotFoundException {
+		
+		Mockito.when(userRepository.findByEmailIdAndPassword(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(Optional.empty());
+		userServiceImpl.login(loginRequest);
+	}
+	
 }

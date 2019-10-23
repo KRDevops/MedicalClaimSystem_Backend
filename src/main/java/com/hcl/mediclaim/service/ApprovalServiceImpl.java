@@ -67,8 +67,8 @@ public class ApprovalServiceImpl implements ApprovalService {
 		if (!user1.isPresent()) {
 			throw new ApproverNotFoundException(MediClaimUtil.APPROVERNOT_FOUND);
 		}
-		List<Claim> claim1 = new ArrayList<>();
-		Optional<List<Claim>> claims = Optional.of(claim1);
+	
+		Optional<List<Claim>> claims = Optional.empty();
 		
 		List<ApprovalDto> approvalDtos = new ArrayList<>();
 		List<Hospital> hospitals = hospitalRepository.findAll();

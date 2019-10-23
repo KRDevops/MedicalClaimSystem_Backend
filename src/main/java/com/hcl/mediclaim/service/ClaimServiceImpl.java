@@ -124,12 +124,13 @@ public class ClaimServiceImpl implements ClaimService {
 		Optional<Role> role = roleRepository.findByRoleName(RoleNames.APPROVER.name());
 
 		Optional<List<User>> approverList = Optional.of(new ArrayList<User>());
+		
 		if (role.isPresent()) {
 			approverList = userRepository.findByRoleId(role.get());
 		}
 		
 		// Calculating Deviation Percentage
-		if (claimRequest.getClaimAmount() < policy.get().getAvailableAmount()) {
+		if (claimRequest.getClaimAmount() > policy.get().getAvailableAmount()) {
 			deviationPercent = (claimRequest.getClaimAmount() - policy.get().getAvailableAmount()) * 100
 					/ policy.get().getAvailableAmount();
 		}
