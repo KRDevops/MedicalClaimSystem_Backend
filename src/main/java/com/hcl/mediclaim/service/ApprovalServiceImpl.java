@@ -53,6 +53,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 	UserRepository userRepository;
 	@Autowired
 	PolicyRepository policyRepository;
+
 	@Autowired
 	JavaMailUtil javaMailUtil;
 
@@ -69,20 +70,29 @@ public class ApprovalServiceImpl implements ApprovalService {
 		log.info("entered into approvalService");
 		User user = new User();
 		user.setUserId(approverId);
-
 		Pageable paging = PageRequest.of(pageNumber, MediClaimUtil.SIZE);
+		Optional<User> user1 = userRepository.findByUserId(approverId);
+		if (!user1.isPresent()) {
+			throw new ApproverNotFoundException(MediClaimUtil.APPROVER_NOT_FOUND);
+		}
+		Optional<List<Claim>> claims = null;
 
-		Optional<List<Claim>> claims = claimRepository.findByApproverId(user, paging);
+		List<ApprovalDto> approvalDtos = new ArrayList<>();
+		List<Hospital> hospitals = hospitalRepository.findAll();
+		if (user1.get().getRoleId().getRoleId().equals(MediClaimUtil.TWO)) {
+			claims = claimRepository.findByApproverId(user, paging);
+
+		} else {
+			claims = claimRepository.findBySeniorApproverId(user, paging);
+		}
 		if (!claims.isPresent()) {
 			throw new ApproverNotFoundException(MediClaimUtil.APPROVER_NOT_FOUND);
 		}
-		List<Hospital> hospitals = hospitalRepository.findAll();
-		List<ApprovalDto> approvalDtos = new ArrayList<>();
 		claims.get().forEach(claim -> {
 			ApprovalDto approvalDto = new ApprovalDto();
 			BeanUtils.copyProperties(claim, approvalDto);
 			hospitals.forEach(hospital -> {
-				if (hospital.getHospitalId().equals(claim.getHospitalId())) {
+				if (hospital.getHospitalId().equals(claim.getHospitalId().getHospitalId())) {
 					approvalDto.setHospitalName(hospital.getHospitalName());
 				}
 			});
@@ -114,8 +124,8 @@ public class ApprovalServiceImpl implements ApprovalService {
 		ResponseDto responseDto = null;
 		Optional<List<User>> seniorApprovers = userRepository.findByRoleId(
 				new Role(MediClaimUtil.THREE, MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE));
-		if (claim.isPresent()) {
-			if (approver.isPresent()) {
+		if (approver.isPresent()) {
+			if (claim.isPresent()) {
 				// Check if the role is approver
 				if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.TWO)) {
 					// Execute this if statement if approver action is APPROVE
@@ -133,9 +143,11 @@ public class ApprovalServiceImpl implements ApprovalService {
 					// Execute this if statement if it is senior level approval.
 					responseDto = seniorApproveClaim(approveRequestDto, claim, policy);
 				}
+			} else {
+				throw new MediClaimException(MediClaimUtil.CLAIM_NOT_AVAILABLE);
 			}
 		} else {
-			throw new MediClaimException(MediClaimUtil.CLAIM_NOT_AVAILABLE);
+			throw new MediClaimException(MediClaimUtil.APPROVER_NOT_FOUND);
 		}
 		log.info("approve method in Approval Service ended");
 		return responseDto;

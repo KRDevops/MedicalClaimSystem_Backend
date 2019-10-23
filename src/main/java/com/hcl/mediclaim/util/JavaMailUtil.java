@@ -24,7 +24,6 @@ public class JavaMailUtil {
 
 	public String sendEmail(String recepient, String message, String subject) throws MessagingException {
 		log.info("sendmail in JavaMailUtil started");
-		String flag=null;
 		try {
 			MimeMessage msg = javaMailSender.createMimeMessage();
 	        MimeMessageHelper helper = new MimeMessageHelper(msg);

@@ -111,7 +111,7 @@ public class ClaimServiceTest {
 	}
 
 	@Test(expected = MediClaimException.class)
-	public void negativeTestCreateUser() throws IOException, MediClaimException, MessagingException {
+	public void negativeTestUser() throws IOException, MediClaimException, MessagingException {
 
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		File file = resource.getFile();
@@ -120,9 +120,19 @@ public class ClaimServiceTest {
 		Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
 		claimResponseDto = claimServiceImpl.create(multipartFile, claimRequestDto);
 	}
+	
+	@Test(expected = MediClaimException.class)
+	public void negativeTestFileFormat() throws IOException, MediClaimException, MessagingException {
+
+		Resource resource = new ClassPathResource("stock.csv");
+		File file = resource.getFile();
+		MockMultipartFile multipartFile = new MockMultipartFile("stock","stock.xlsx","application/pdf", new FileInputStream(file));
+		Mockito.when(userRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+		claimResponseDto = claimServiceImpl.create(multipartFile, claimRequestDto);
+	}
 
 	@Test(expected = MediClaimException.class)
-	public void negativeTestCreatePolicy() throws IOException, MediClaimException, MessagingException {
+	public void negativeTestPolicy() throws IOException, MediClaimException, MessagingException {
 
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		File file = resource.getFile();
@@ -133,7 +143,7 @@ public class ClaimServiceTest {
 	}
 
 	@Test(expected = MediClaimException.class)
-	public void negativeTestCreateHospital() throws IOException, MediClaimException, MessagingException {
+	public void negativeTestHospital() throws IOException, MediClaimException, MessagingException {
 
 		Resource resource = new ClassPathResource("afrin11.pdf");
 		File file = resource.getFile();

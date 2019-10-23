@@ -140,6 +140,9 @@ public class ApprovalServiceTest {
 		Pageable pageable = PageRequest.of(1, 1);
 		User user = new User();
 		user.setUserId(2l);
+		Role role = new Role();
+		role.setRoleId(2l);
+		user.setRoleId(role);
 		Policy policy = new Policy();
 		policy.setPolicyNumber(1l);
 		Claim claim = new Claim();
@@ -154,10 +157,46 @@ public class ApprovalServiceTest {
 		claim.setPolicyNumber(policy);
 		claim.setClaimId(1l);
 		claim.setSeniorApproverId(user);
-
+		Long approverId = 2l;
 		List<Claim> claims = new ArrayList<>();
 		claims.add(claim);
 		Mockito.when(claimRepository.findByApproverId(Mockito.any(), Mockito.any())).thenReturn(Optional.of(claims));
+		Mockito.when(userRepository.findByUserId(approverId)).thenReturn(Optional.of(user));
+		Mockito.when(hospitalRepository.findAll()).thenReturn(hosp);
+		List<ApprovalDto> response = approvalService.approve(2l, 0);
+		assertEquals(response.size(), claims.size());
+	}
+
+	@Test
+	public void testApprovalSeniorLevel() throws ApproverNotFoundException {
+		ApprovalResponseDto dto = new ApprovalResponseDto();
+		dto.setStatusCode(200);
+		Pageable pageable = PageRequest.of(1, 1);
+		User user = new User();
+		user.setUserId(2l);
+		Role role = new Role();
+		role.setRoleId(3l);
+		user.setRoleId(role);
+		Policy policy = new Policy();
+		policy.setPolicyNumber(1l);
+		Claim claim = new Claim();
+		claim.setApproverId(user);
+		claim.setUserId(user);
+		Hospital hos = new Hospital();
+		hos.setHospitalId(1l);
+		hos.setHospitalName("kg");
+		List<Hospital> hosp = new ArrayList<>();
+		hosp.add(hos);
+		claim.setHospitalId(hos);
+		claim.setPolicyNumber(policy);
+		claim.setClaimId(1l);
+		claim.setSeniorApproverId(user);
+		Long approverId = 2l;
+		List<Claim> claims = new ArrayList<>();
+		claims.add(claim);
+		Mockito.when(claimRepository.findBySeniorApproverId(Mockito.any(), Mockito.any()))
+				.thenReturn(Optional.of(claims));
+		Mockito.when(userRepository.findByUserId(approverId)).thenReturn(Optional.of(user));
 		Mockito.when(hospitalRepository.findAll()).thenReturn(hosp);
 		List<ApprovalDto> response = approvalService.approve(2l, 0);
 		assertEquals(response.size(), claims.size());
@@ -167,11 +206,15 @@ public class ApprovalServiceTest {
 	public void testApprove() throws MediClaimException, MessagingException {
 		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
 		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
-		/*
-		 * Mockito.when(userRepository.findByRoleId( new Role(MediClaimUtil.THREE,
-		 * MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
-		 * .thenReturn(Optional.of(seniorApproverList));
-		 */
+		ResponseDto responseUpdateDto = approvalService.approveOrReject(approveRequestDto);
+		assertNotNull(responseUpdateDto);
+
+	}
+	
+	@Test
+	public void testApproveDeviationCondition() throws MediClaimException, MessagingException {
+		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
+		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
 		ResponseDto responseUpdateDto = approvalService.approveOrReject(approveRequestDto);
 		assertNotNull(responseUpdateDto);
 
@@ -199,12 +242,6 @@ public class ApprovalServiceTest {
 		approveRequestDto.setRemarks("Reject");
 		approveRequestDto.setStatus("REJECT");
 		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
-//		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
-		/*
-		 * Mockito.when(userRepository.findByRoleId( new Role(MediClaimUtil.THREE,
-		 * MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
-		 * .thenReturn(Optional.of(seniorApproverList));
-		 */
 		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
 		responseDto = approvalService.approveOrReject(approveRequestDto);
 		assertEquals("REJECTED", responseDto.getMessage());
@@ -218,12 +255,6 @@ public class ApprovalServiceTest {
 		approveRequestDto.setRemarks("Pass");
 		approveRequestDto.setStatus("PASS");
 		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
-//		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
-		/*
-		 * Mockito.when(userRepository.findByRoleId( new Role(MediClaimUtil.THREE,
-		 * MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
-		 * .thenReturn(Optional.of(seniorApproverList));
-		 */
 		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
 		approvalService.approveOrReject(approveRequestDto);
 	}
@@ -244,12 +275,6 @@ public class ApprovalServiceTest {
 		claim.setClaimAmount(2000.00);
 		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId()))
 				.thenReturn(Optional.of(seniorApprover));
-//		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
-		/*
-		 * Mockito.when(userRepository.findByRoleId( new Role(MediClaimUtil.THREE,
-		 * MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
-		 * .thenReturn(Optional.of(seniorApproverList));
-		 */
 		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
 		Mockito.when(policyRepository.save(Mockito.any())).thenReturn(policy);
 		ResponseDto responseDto = approvalService.approveOrReject(approveRequestDto);
@@ -272,12 +297,6 @@ public class ApprovalServiceTest {
 		claim.setClaimAmount(2000.00);
 		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId()))
 				.thenReturn(Optional.of(seniorApprover));
-//		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
-		/*
-		 * Mockito.when(userRepository.findByRoleId( new Role(MediClaimUtil.THREE,
-		 * MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
-		 * .thenReturn(Optional.of(seniorApproverList));
-		 */
 		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
 		ResponseDto responseDto = approvalService.approveOrReject(approveRequestDto);
 		assertEquals(new Integer(200), responseDto.getStatusCode());
