@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.hcl.mediclaim.dto.ApprovalDto;
-import com.hcl.mediclaim.dto.ApprovalResponseDto;
 import com.hcl.mediclaim.dto.ApproveRequestDto;
 import com.hcl.mediclaim.dto.ResponseDto;
 import com.hcl.mediclaim.entity.Claim;
@@ -21,6 +20,7 @@ import com.hcl.mediclaim.entity.Hospital;
 import com.hcl.mediclaim.entity.Policy;
 import com.hcl.mediclaim.entity.Role;
 import com.hcl.mediclaim.entity.User;
+import com.hcl.mediclaim.exception.ApproverNotFoundException;
 import com.hcl.mediclaim.exception.MediClaimException;
 import com.hcl.mediclaim.repository.ClaimRepository;
 import com.hcl.mediclaim.repository.HospitalRepository;
@@ -53,42 +53,55 @@ public class ApprovalServiceImpl implements ApprovalService {
 	UserRepository userRepository;
 	@Autowired
 	PolicyRepository policyRepository;
+
 	@Autowired
 	JavaMailUtil javaMailUtil;
 
+	/**
+	 * This method is used to fetch the approvals list for the loggedIn approver
+	 * 
+	 * @param approverId
+	 * @param pageNumber
+	 * @return ApprovalRepsoneDto
+	 * @throws ApproverNotFoundException
+	 */
 	@Override
-	public ApprovalResponseDto viewClaimRequests(Long approverId, Integer pageNumber) {
-		User approver = userRepository.findByUserId(approverId);
+	public List<ApprovalDto> approve(Long approverId, Integer pageNumber) throws ApproverNotFoundException {
+		log.info("entered into approvalService");
 		User user = new User();
 		user.setUserId(approverId);
-
-		Pageable paging = PageRequest.of(pageNumber, 20);
-
-		List<Claim> claim4 = claimRepository.findByApproverIdOrSeniorApproverId(user);
-		ApprovalResponseDto dtos = new ApprovalResponseDto();
-		if (approver.getRoleId().getRoleId() == MediClaimUtil.TWO) {
-			List<Claim> claims = claimRepository.findByApproverIdOrSeniorApproverId(user, paging);
-			List<Hospital> hos = hospitalRepository.findAll();
-			List<ApprovalDto> dto = new ArrayList<>();
-			claims.forEach(claim1 -> {
-				ApprovalDto dto1 = new ApprovalDto();
-				BeanUtils.copyProperties(claim1, dto1);
-				hos.forEach(hos1 -> {
-					if (Long.compare(hos1.getHospitalId(), claim1.getHospitalId().getHospitalId()) >= 0) {
-						dto1.setHospitalName(hos1.getHospitalName());
-					}
-				});
-
-				dto.add(dto1);
-				dtos.setClaim(dto);
-			});
-
-			dtos.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
-			dtos.setMessage(MediClaimUtil.GENERICSUCCESSMESSAGE);
-			dtos.setCount(claim4.size());
-
+		Pageable paging = PageRequest.of(pageNumber, MediClaimUtil.SIZE);
+		Optional<User> user1 = userRepository.findByUserId(approverId);
+		if (!user1.isPresent()) {
+			throw new ApproverNotFoundException(MediClaimUtil.APPROVERNOT_FOUND);
 		}
-		return dtos;
+		List<Claim> claim1 = new ArrayList<>();
+		Optional<List<Claim>> claims = Optional.of(claim1);
+
+		List<ApprovalDto> approvalDtos = new ArrayList<>();
+		List<Hospital> hospitals = hospitalRepository.findAll();
+		if (user1.get().getRoleId().getRoleId().equals(MediClaimUtil.TWO)) {
+			claims = claimRepository.findByApproverId(user, paging);
+
+		} else {
+			claims = claimRepository.findBySeniorApproverId(user, paging);
+		}
+		if (!claims.isPresent()) {
+			throw new ApproverNotFoundException(MediClaimUtil.APPROVER_NOT_FOUND);
+		}
+		claims.get().forEach(claim -> {
+			ApprovalDto approvalDto = new ApprovalDto();
+			BeanUtils.copyProperties(claim, approvalDto);
+			hospitals.forEach(hospital -> {
+				if (hospital.getHospitalId().equals(claim.getHospitalId().getHospitalId())) {
+					approvalDto.setHospitalName(hospital.getHospitalName());
+				}
+			});
+			approvalDto.setUserId(claim.getUserId().getUserId());
+			approvalDto.setPolicyNumber(claim.getPolicyNumber().getPolicyNumber());
+			approvalDtos.add(approvalDto);
+		});
+		return approvalDtos;
 	}
 
 	/**
@@ -106,7 +119,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 	public ResponseDto approveOrReject(ApproveRequestDto approveRequestDto)
 			throws MediClaimException, MessagingException {
 		log.info("approve method in Approval Service started");
-		User approver = userRepository.findByUserId(approveRequestDto.getApproverId());
+		Optional<User> approver = userRepository.findByUserId(approveRequestDto.getApproverId());
 		Optional<Claim> claim = claimRepository.findByClaimId(approveRequestDto.getClaimId());
 		Policy policy = new Policy();
 		ResponseDto responseDto = null;
@@ -114,7 +127,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 				new Role(MediClaimUtil.THREE, MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE));
 		if (claim.isPresent()) {
 			// Check if the role is approver
-			if (approver.getRoleId().getRoleId().equals(MediClaimUtil.TWO)) {
+			if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.TWO)) {
 				// Execute this if statement if approver action is APPROVE
 				if (approveRequestDto.getStatus().equals(MediClaimUtil.APPROVE)) {
 					responseDto = approveClaim(claim, policy, approveRequestDto);
@@ -126,7 +139,7 @@ public class ApprovalServiceImpl implements ApprovalService {
 					// senior approval.
 					responseDto = passClaim(seniorApprovers, approveRequestDto);
 				}
-			} else if (approver.getRoleId().getRoleId().equals(MediClaimUtil.THREE)) {
+			} else if (approver.get().getRoleId().getRoleId().equals(MediClaimUtil.THREE)) {
 				// Execute this if statement if it is senior level approval.
 				responseDto = seniorApproveClaim(approveRequestDto, claim, policy);
 			}

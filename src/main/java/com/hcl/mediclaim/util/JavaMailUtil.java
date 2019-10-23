@@ -22,21 +22,27 @@ public class JavaMailUtil {
 	@Autowired
 	JavaMailSender javaMailSender;
 
-	public void sendEmail(String recepient, String message, String subject) throws MessagingException {
+	public String sendEmail(String recepient, String message, String subject) throws MessagingException {
 		log.info("sendmail in JavaMailUtil started");
-		
-		MimeMessage msg = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(msg);
-         
-        helper.setText(message);
-        helper.setSubject(subject);
-        helper.setTo(recepient);
+		try {
+			MimeMessage msg = javaMailSender.createMimeMessage();
+	        MimeMessageHelper helper = new MimeMessageHelper(msg);
+	         
+	        helper.setText(message);
+	        helper.setSubject(subject);
+	        helper.setTo(recepient);
+	        
+	        javaMailSender.send(msg);
+	        
+	        log.info("sendmail in JavaMailUtil ended");
+			log.info("Message sent successfully");
+			
+	        return MediClaimUtil.SUCCESS;
+		}
+		catch(Exception e){
+			return MediClaimUtil.REJECTED;
+		}
         
-        javaMailSender.send(msg);
-        
-		log.info("sendmail in JavaMailUtil ended");
-		log.info("Message sent successfully");
-
 	}
 
 }

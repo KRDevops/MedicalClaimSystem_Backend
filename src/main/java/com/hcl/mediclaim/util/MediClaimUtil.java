@@ -38,19 +38,24 @@ public class MediClaimUtil {
 	public static final String PASS = "PASS";
 	public static final String PASSED = "PASSED";
 	public static final String AVAILABLE_LOW_EXCEPTION = "Available balance is low";
+	public static final String APPROVERNOT_FOUND = "Approver is not found";
 
 	public static final String HOSPITAL_NETWORK = "Hospital Found Outside Network";
 	public static final String ATTACHMENT_PATH = "src/main/resources";
-	public static final String FILE_EXTENSION = ".pdf";
+	public static final String FILE_EXTENSION = "pdf";
 	public static final String SUBMIT_USER_MESSAGE = "Hi ,\n Your Claim Request Has Been Submitted Successfully \n ";
 	public static final String SUBMIT_APPROVER_MESSAGE = "Hi,\n A Mediclaim Request is waiting for your approval \n";
 	public static final String SUBMIT_USER_SUBJECT = "MEDICLAIM STATUS";
 	public static final String SUBMIT_APPROVER_SUBJECT = "MEDICLAIM APPROVAL REQUEST";
 	public static final String COUNTRY = "India";
 	public static final String SENIOR_APPROVER_NOT_PRESENT = "Senior Approver is not present";
+
+	public static final String INVALID_DATE_DIFFERENCE = "Admission Date Should Be Lesser Than Discharge Date";
+	public static final String FILE_FORMAT_INVALID = "Invalid File Format";
 	public static final String MOVE = "MOVE";
 	public static final String APRROVEORREJECTBYSENIOR = "Approve/Reject by Senior Approver is done";
 	public static final String CLAIM_FOR_REJECTION_NOT_AVAILABLE = "No claim is present for rejection";
 	public static final String CLAIM_FOR_APPROVAL_NOT_AVAILABLE = "No claim is present for Approval";
 	public static final String CLAIM_NOT_AVAILABLE = "No Claim is available";
+	public static final Integer SIZE = 10;
 }

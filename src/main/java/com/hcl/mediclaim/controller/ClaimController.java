@@ -38,13 +38,13 @@ public class ClaimController {
 	 * This method creates a claim in the respective table
 	 * 
 	 * @param documents multipartfile content
-	 * @param claimRequestDto 
-	 * @return ClaimResponseDto
-	 * @throws IOException
-	 * @throws MediClaimException
-	 * @throws MessagingException
+	 * @param claimRequestDto contains diagnosis,admissionDate,dischargeDate,hospitalId,policyNumber,natureOfAilment,userId,claimAmount.                  
+	 * @throws IOException thrown when interrupted I/O Operations 
+	 * @throws MediClaimException Custom Exceptions
+	 * @throws MessagingException thrown when mail sending fails
+	 * @return ClaimResponseDto conatins contains claim id,message and status code.
 	 */
-	@PostMapping(consumes = MediaType.ALL_VALUE, path = "claims/create")
+	@PostMapping(consumes = MediaType.ALL_VALUE, path = "claims/creation")
 	public ClaimResponseDto create(@NotNull @RequestPart("file") MultipartFile documents,
 			@NotNull @RequestPart("requests") String claimRequestDto)
 			throws IOException, MediClaimException,MessagingException {

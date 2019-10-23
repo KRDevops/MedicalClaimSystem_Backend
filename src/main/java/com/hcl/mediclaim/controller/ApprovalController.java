@@ -1,5 +1,7 @@
 package com.hcl.mediclaim.controller;
 
+import java.util.List;
+
 import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hcl.mediclaim.dto.ApprovalDto;
+import com.hcl.mediclaim.dto.ApprovalResponseDto;
 import com.hcl.mediclaim.dto.ApproveRequestDto;
 import com.hcl.mediclaim.dto.ResponseDto;
+import com.hcl.mediclaim.exception.ApproverNotFoundException;
 import com.hcl.mediclaim.exception.MediClaimException;
 import com.hcl.mediclaim.service.ApprovalService;
 
@@ -29,9 +34,25 @@ public class ApprovalController {
 	@Autowired
 	ApprovalService approvalService;
 
+	/**
+	 * This method is used to fetch the approvals list for the loggedIn approver
+	 * 
+	 * @param approverId
+	 * @param pageNumber
+	 * @return ApprovalRepsoneDto
+	 * @throws ApproverNotFoundException
+	 *
+	 */
 	@GetMapping(value = "/approvals/{approverId}")
-	public ResponseEntity approval(@PathVariable Long approverId, @RequestParam Integer pageNumber) {
-		return new ResponseEntity(approvalService.viewClaimRequests(approverId, pageNumber), HttpStatus.OK);
+	public ResponseEntity approval(@PathVariable Long approverId, @RequestParam Integer pageNumber)
+			throws ApproverNotFoundException {
+		log.info("entered into approval controller");
+		List<ApprovalDto> approvalDto = approvalService.approve(approverId, pageNumber);
+		ApprovalResponseDto approvalResponseDto = new ApprovalResponseDto();
+		approvalResponseDto.setClaim(approvalDto);
+		approvalResponseDto.setMessage("success");
+		approvalResponseDto.setStatusCode(200);
+		return new ResponseEntity(approvalResponseDto, HttpStatus.OK);
 
 	}
 

@@ -18,8 +18,6 @@ import com.hcl.mediclaim.entity.User;
 @Repository
 public interface ClaimRepository extends JpaRepository<Claim, Long> {
 
-	List<Claim> findByApproverId(User user, Pageable paging);
-
 	Optional<Claim> findByClaimId(Long claimId);
 
 	@Transactional
@@ -34,10 +32,9 @@ public interface ClaimRepository extends JpaRepository<Claim, Long> {
 	void updateClaimStatusAndSeniorApproverIdAndRemarksByClaimId(@Param("seniorApproverId") User seniorApproverId,
 			@Param("claimId") Long claimId, @Param("claimStatus") String claimStatus, @Param("remarks") String remarks);
 
-	List<Claim> findByApproverId(User user);
+	Claim findTopByOrderByClaimIdDesc();
 
-	List<Claim> findByApproverIdOrSeniorApproverId(User user);
+	Optional<List<Claim>> findBySeniorApproverId(User user, Pageable paging);
 
-	List<Claim> findByApproverIdOrSeniorApproverId(User user, Pageable paging);
-
+	Optional<List<Claim>> findByApproverId(User user, Pageable paging);
 }

@@ -2,7 +2,6 @@ package com.hcl.mediclaim.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.doAnswer;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -18,12 +17,11 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.hcl.mediclaim.dto.ApprovalDto;
 import com.hcl.mediclaim.dto.ApprovalResponseDto;
 import com.hcl.mediclaim.dto.ApproveRequestDto;
 import com.hcl.mediclaim.dto.ResponseDto;
@@ -137,12 +135,15 @@ public class ApprovalServiceTest {
 	}
 
 	@Test
-	public void testViewApprovals() throws ApproverNotFoundException {
+	public void testViewApprove() throws ApproverNotFoundException {
 		ApprovalResponseDto dto = new ApprovalResponseDto();
 		dto.setStatusCode(200);
 		Pageable pageable = PageRequest.of(1, 1);
 		User user = new User();
 		user.setUserId(2l);
+		Role role = new Role();
+		role.setRoleId(2l);
+		user.setRoleId(role);
 		Policy policy = new Policy();
 		policy.setPolicyNumber(1l);
 		Claim claim = new Claim();
@@ -157,19 +158,54 @@ public class ApprovalServiceTest {
 		claim.setPolicyNumber(policy);
 		claim.setClaimId(1l);
 		claim.setSeniorApproverId(user);
-
+		Long approverId = 2l;
 		List<Claim> claims = new ArrayList<>();
 		claims.add(claim);
-		Mockito.when(claimRepository.findByApproverId(Mockito.any())).thenReturn(claims);
-		Mockito.when(claimRepository.findByApproverId(Mockito.any(), Mockito.any())).thenReturn(claims);
+		Mockito.when(claimRepository.findByApproverId(Mockito.any(), Mockito.any())).thenReturn(Optional.of(claims));
+		Mockito.when(userRepository.findByUserId(approverId)).thenReturn(Optional.of(user));
 		Mockito.when(hospitalRepository.findAll()).thenReturn(hosp);
-		ApprovalResponseDto response = approvalService.viewClaimRequests(2l, 0);
-		assertEquals(response.getStatusCode(), dto.getStatusCode());
+		List<ApprovalDto> response = approvalService.approve(2l, 0);
+		assertEquals(response.size(), claims.size());
+	}
+
+	@Test
+	public void testApprovalSeniorLevel() throws ApproverNotFoundException {
+		ApprovalResponseDto dto = new ApprovalResponseDto();
+		dto.setStatusCode(200);
+		Pageable pageable = PageRequest.of(1, 1);
+		User user = new User();
+		user.setUserId(2l);
+		Role role = new Role();
+		role.setRoleId(3l);
+		user.setRoleId(role);
+		Policy policy = new Policy();
+		policy.setPolicyNumber(1l);
+		Claim claim = new Claim();
+		claim.setApproverId(user);
+		claim.setUserId(user);
+		Hospital hos = new Hospital();
+		hos.setHospitalId(1l);
+		hos.setHospitalName("kg");
+		List<Hospital> hosp = new ArrayList<>();
+		hosp.add(hos);
+		claim.setHospitalId(hos);
+		claim.setPolicyNumber(policy);
+		claim.setClaimId(1l);
+		claim.setSeniorApproverId(user);
+		Long approverId = 2l;
+		List<Claim> claims = new ArrayList<>();
+		claims.add(claim);
+		Mockito.when(claimRepository.findBySeniorApproverId(Mockito.any(), Mockito.any()))
+				.thenReturn(Optional.of(claims));
+		Mockito.when(userRepository.findByUserId(approverId)).thenReturn(Optional.of(user));
+		Mockito.when(hospitalRepository.findAll()).thenReturn(hosp);
+		List<ApprovalDto> response = approvalService.approve(2l, 0);
+		assertEquals(response.size(), claims.size());
 	}
 
 	@Test
 	public void testApprove() throws MediClaimException, MessagingException {
-		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(approver);
+		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
 		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
 		Mockito.when(userRepository.findByRoleId(
 				new Role(MediClaimUtil.THREE, MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
@@ -187,7 +223,7 @@ public class ApprovalServiceTest {
 
 	@Test
 	public void testPassIfDeviationPercentGreaterThan10() throws IOException, MediClaimException, MessagingException {
-		Mockito.when(userRepository.findByUserId(Mockito.any())).thenReturn(approver);
+		Mockito.when(userRepository.findByUserId(Mockito.any())).thenReturn(Optional.of(approver));
 		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
 		responseDto = approvalService.approveOrReject(approveRequestDto);
 		assertEquals("MOVE", responseDto.getMessage());
@@ -200,7 +236,7 @@ public class ApprovalServiceTest {
 		approveRequestDto.setClaimId(10L);
 		approveRequestDto.setRemarks("Reject");
 		approveRequestDto.setStatus("REJECT");
-		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(approver);
+		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
 		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
 		Mockito.when(userRepository.findByRoleId(
 				new Role(MediClaimUtil.THREE, MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
@@ -217,7 +253,7 @@ public class ApprovalServiceTest {
 		approveRequestDto.setClaimId(10L);
 		approveRequestDto.setRemarks("Pass");
 		approveRequestDto.setStatus("PASS");
-		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(approver);
+		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
 		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
 		Mockito.when(userRepository.findByRoleId(
 				new Role(MediClaimUtil.THREE, MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
@@ -241,7 +277,8 @@ public class ApprovalServiceTest {
 		claim.setHospitalId(hospital);
 		claim.setDeviationPercentage(15);
 		claim.setClaimAmount(2000.00);
-		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(seniorApprover);
+		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId()))
+				.thenReturn(Optional.of(seniorApprover));
 		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
 		Mockito.when(userRepository.findByRoleId(
 				new Role(MediClaimUtil.THREE, MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
@@ -266,7 +303,8 @@ public class ApprovalServiceTest {
 		claim.setHospitalId(hospital);
 		claim.setDeviationPercentage(15);
 		claim.setClaimAmount(2000.00);
-		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(seniorApprover);
+		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId()))
+				.thenReturn(Optional.of(seniorApprover));
 		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
 		Mockito.when(userRepository.findByRoleId(
 				new Role(MediClaimUtil.THREE, MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
