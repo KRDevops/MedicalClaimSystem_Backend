@@ -53,8 +53,8 @@ public class MediClaimUtil {
 	public static final String FILE_FORMAT_INVALID = "Invalid File Format";
 	public static final String MOVE = "MOVE";
 	public static final String APRROVEORREJECTBYSENIOR = "Approve/Reject by Senior Approver is done";
-	public static final Integer SIZE = 10;
 	public static final String CLAIM_FOR_REJECTION_NOT_AVAILABLE = "No claim is present for rejection";
 	public static final String CLAIM_FOR_APPROVAL_NOT_AVAILABLE = "No claim is present for Approval";
 	public static final String CLAIM_NOT_AVAILABLE = "No Claim is available";
+	public static final Integer SIZE = 10;
 }

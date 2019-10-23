@@ -34,10 +34,7 @@ public interface ClaimRepository extends JpaRepository<Claim, Long> {
 
 	Claim findTopByOrderByClaimIdDesc();
 
-
-
 	Optional<List<Claim>> findBySeniorApproverId(User user, Pageable paging);
 
 	Optional<List<Claim>> findByApproverId(User user, Pageable paging);
-
 }

@@ -210,20 +210,11 @@ public class ApprovalServiceTest {
 		assertNotNull(responseUpdateDto);
 
 	}
-	
-	@Test
-	public void testApproveDeviationCondition() throws MediClaimException, MessagingException {
-		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
-		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
-		ResponseDto responseUpdateDto = approvalService.approveOrReject(approveRequestDto);
-		assertNotNull(responseUpdateDto);
-
-	}
 
 	@Test(expected = MediClaimException.class)
 	public void negativeTestClaimAvailability() throws IOException, MediClaimException, MessagingException {
 		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.empty());
-		approvalService.approveOrReject(approveRequestDto);
+		responseDto = approvalService.approveOrReject(approveRequestDto);
 	}
 
 	@Test
@@ -248,7 +239,7 @@ public class ApprovalServiceTest {
 	}
 
 	@Test(expected = MediClaimException.class)
-	public void testPassClaimException() throws IOException, MediClaimException, MessagingException {
+	public void testPassClaim() throws IOException, MediClaimException, MessagingException {
 		ApproveRequestDto approveRequestDto = new ApproveRequestDto();
 		approveRequestDto.setApproverId(1L);
 		approveRequestDto.setClaimId(10L);
@@ -275,6 +266,12 @@ public class ApprovalServiceTest {
 		claim.setClaimAmount(2000.00);
 		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId()))
 				.thenReturn(Optional.of(seniorApprover));
+//		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
+		/*
+		 * Mockito.when(userRepository.findByRoleId( new Role(MediClaimUtil.THREE,
+		 * MediClaimUtil.SENIOR_APPROVER_ROLE, MediClaimUtil.SENIOR_APPROVER_ROLE)))
+		 * .thenReturn(Optional.of(seniorApproverList));
+		 */
 		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
 		Mockito.when(policyRepository.save(Mockito.any())).thenReturn(policy);
 		ResponseDto responseDto = approvalService.approveOrReject(approveRequestDto);
@@ -301,4 +298,5 @@ public class ApprovalServiceTest {
 		ResponseDto responseDto = approvalService.approveOrReject(approveRequestDto);
 		assertEquals(new Integer(200), responseDto.getStatusCode());
 	}
+
 }
