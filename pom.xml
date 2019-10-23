@@ -80,16 +80,21 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>com.fasterxml.jackson.datatype</groupId>
-		    <artifactId>jackson-datatype-jsr310</artifactId>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
 		</dependency>
 	</dependencies>
 	<distributionManagement>
-  <snapshotRepository>
-    <id>snapshots</id>
-    <url>http://13.233.178.107:8081/nexus/content/repositories/snapshots</url>
-  </snapshotRepository>
-</distributionManagement>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<url>http://13.233.178.107:8081/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<build>
 		<plugins>

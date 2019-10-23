@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import javax.mail.MessagingException;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,11 +70,13 @@ public class ClaimServiceImpl implements ClaimService {
 	/**
 	 * This method will save per claim details into the respective table.
 	 * 
-	 * @param documents       contain the file data
+	 * @param documents contain the file data
 	 * @param claimRequestDto conatins
 	 *                        diagnosis,admissionDate,dischargeDate,hospitalId,policyNumber,natureOfAilment,userId,claimAmount.
+	 * @throws IOException thrown when interrupted I/O Operations
+	 * @throws MediClaimException Custom Exceptions
+	 * @throws MessagingException thrown when mail sending fails
 	 * @return ClaimResponseDto contains claim id,message and status code.
-	 * 
 	 * 
 	 */
 	@Override
@@ -88,7 +91,7 @@ public class ClaimServiceImpl implements ClaimService {
 
 		ClaimResponseDto claimResponseDto = new ClaimResponseDto();
 
-		// Converting String to Object
+		// Converting String to ClaimRequestDto Object
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JavaTimeModule());
 		ClaimRequestDto claimRequest = objectMapper.readValue(claimRequestDto, ClaimRequestDto.class);
@@ -96,7 +99,11 @@ public class ClaimServiceImpl implements ClaimService {
 		Optional<User> user = userRepository.findById(claimRequest.getUserId());
 		Optional<Policy> policy = policyRepository.findById(claimRequest.getPolicyNumber());
 		Optional<Hospital> hospital = hospitalRepository.findById(claimRequest.getHospitalId());
-
+		
+		//Check File Format
+		if(!FilenameUtils.getExtension(documents.getOriginalFilename()).equalsIgnoreCase(MediClaimUtil.FILE_EXTENSION)) {
+			throw new MediClaimException(MediClaimUtil.FILE_FORMAT_INVALID);
+		}
 		if (!user.isPresent()) {
 			throw new MediClaimException(MediClaimUtil.USER_NOT_FOUND);
 		}
@@ -104,33 +111,33 @@ public class ClaimServiceImpl implements ClaimService {
 		if (!policy.isPresent()) {
 			throw new MediClaimException(MediClaimUtil.POLICY_NOT_FOUND);
 		}
-
-		if (!user.isPresent()) {
-			throw new MediClaimException(MediClaimUtil.USER_NOT_FOUND);
-		}
-		if (hospital.isPresent() && ! hospital.get().getCountry().equalsIgnoreCase(MediClaimUtil.COUNTRY)) {
+		//Check Network Coverage
+		if (hospital.isPresent() && !hospital.get().getCountry().equalsIgnoreCase(MediClaimUtil.COUNTRY)) {
 			throw new MediClaimException(MediClaimUtil.HOSPITAL_NETWORK);
 		}
-
-		// Finding Random Approver
-		Optional<Role> role = roleRepository.findByRoleName(RoleNames.APPROVER.name());
-
-		Optional<List<User>> userList = Optional.of(new ArrayList<User>());
-		if (role.isPresent()) {
-			userList = userRepository.findByRoleId(role.get());
-		}
-
-		// Calculating Deviation Percentage
-		if (claimRequest.getClaimAmount() < policy.get().getAvailableAmount()) {
-			throw new MediClaimException(MediClaimUtil.AVAILABLE_LOW_EXCEPTION);
+		
+		if(!claimRequest.getAdmissionDate().isBefore(claimRequest.getDischargeDate())) {
+			throw new MediClaimException(MediClaimUtil.INVALID_DATE_DIFFERENCE);
 		}
 		
-		deviationPercent = (claimRequest.getClaimAmount() - policy.get().getAvailableAmount()) * 100
-				/ policy.get().getAvailableAmount();
+		// Getting Approver List
+		Optional<Role> role = roleRepository.findByRoleName(RoleNames.APPROVER.name());
+
+		Optional<List<User>> approverList = Optional.of(new ArrayList<User>());
+		if (role.isPresent()) {
+			approverList = userRepository.findByRoleId(role.get());
+		}
+		
+		// Calculating Deviation Percentage
+		if (claimRequest.getClaimAmount() < policy.get().getAvailableAmount()) {
+			deviationPercent = (claimRequest.getClaimAmount() - policy.get().getAvailableAmount()) * 100
+					/ policy.get().getAvailableAmount();
+		}
+		
 		// Copying File To Resource Folder
 		Path rootLocation = Paths.get(MediClaimUtil.ATTACHMENT_PATH);
 		String fileName = user.get().getUserName() + claimRequest.getPolicyNumber().toString()
-				+ claimRequest.getUserId().toString() + MediClaimUtil.FILE_EXTENSION;
+				+ claimRequest.getUserId().toString() + "." + MediClaimUtil.FILE_EXTENSION;
 		Files.copy(documents.getInputStream(), rootLocation.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
 
 		// Setting Values
@@ -139,13 +146,18 @@ public class ClaimServiceImpl implements ClaimService {
 		claim.setUserId(user.get());
 		claim.setDocumentName(fileName);
 		claim.setDeviationPercentage(deviationPercent.intValue());
-		if(hospital.isPresent()) {
+		
+		if (hospital.isPresent()) {
 			claim.setHospitalId(hospital.get());
 		}
+		
 		claim.setNatureOfAilment(Ailment.valueOf(claimRequest.getNatureOfAilment()));
-
-		if (userList.isPresent()) {
-			approver = userList.get().stream().findAny();
+		
+		//Picking Random Approver From List
+		if (approverList.isPresent()) {
+			User approverId=claimRepository.findTopByOrderByClaimIdDesc().getApproverId();
+			approverList.get().remove(approverId);
+			approver = approverList.get().stream().findAny();
 		}
 
 		if (approver.isPresent()) {

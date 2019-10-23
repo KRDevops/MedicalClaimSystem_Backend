@@ -35,5 +35,7 @@ public interface ClaimRepository extends JpaRepository<Claim, Long> {
 			@Param("claimId") Long claimId, @Param("claimStatus") String claimStatus, @Param("remarks") String remarks);
 
 	List<Claim> findByApproverId(User user);
+	
+	Claim findTopByOrderByClaimIdDesc();
 
 }

@@ -41,11 +41,13 @@ public class MediClaimUtil {
 
 	public static final String HOSPITAL_NETWORK = "Hospital Found Outside Network";
 	public static final String ATTACHMENT_PATH = "src/main/resources";
-	public static final String FILE_EXTENSION = ".pdf";
+	public static final String FILE_EXTENSION = "pdf";
 	public static final String SUBMIT_USER_MESSAGE = "Hi ,\n Your Claim Request Has Been Submitted Successfully \n ";
 	public static final String SUBMIT_APPROVER_MESSAGE = "Hi,\n A Mediclaim Request is waiting for your approval \n";
 	public static final String SUBMIT_USER_SUBJECT = "MEDICLAIM STATUS";
 	public static final String SUBMIT_APPROVER_SUBJECT = "MEDICLAIM APPROVAL REQUEST";
 	public static final String COUNTRY = "India";
 	public static final String SENIOR_APPROVER_NOT_PRESENT = "Senior Approver is not present";
+	public static final String INVALID_DATE_DIFFERENCE = "Admission Date Should Be Lesser Than Discharge Date";
+	public static final String FILE_FORMAT_INVALID = "Invalid File Format";
 }
