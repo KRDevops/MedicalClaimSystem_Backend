@@ -226,7 +226,7 @@ public class ApprovalServiceTest {
 	}
 
 	@Test
-	public void testPassIfDeviationPercentLesserThan10() throws IOException, MediClaimException, MessagingException {
+	public void testApproveIfDeviationPercentLesserThan10() throws IOException, MediClaimException, MessagingException {
 		Claim claim = new Claim();
 
 		claim.setClaimId(10L);
@@ -256,7 +256,7 @@ public class ApprovalServiceTest {
 	}
 
 	@Test(expected = MediClaimException.class)
-	public void testPassClaim() throws IOException, MediClaimException, MessagingException {
+	public void testPassClaimException() throws IOException, MediClaimException, MessagingException {
 		ApproveRequestDto approveRequestDto = new ApproveRequestDto();
 		approveRequestDto.setApproverId(1L);
 		approveRequestDto.setClaimId(10L);
@@ -264,6 +264,19 @@ public class ApprovalServiceTest {
 		approveRequestDto.setStatus("PASS");
 		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
 		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
+		approvalService.approveOrReject(approveRequestDto);
+	}
+
+	@Test
+	public void testPassClaim() throws IOException, MediClaimException, MessagingException {
+		ApproveRequestDto approveRequestDto = new ApproveRequestDto();
+		approveRequestDto.setApproverId(3L);
+		approveRequestDto.setClaimId(10L);
+		approveRequestDto.setRemarks("Pass");
+		approveRequestDto.setStatus("PASS");
+		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
+		Mockito.when(claimRepository.findByClaimId(Mockito.any())).thenReturn(Optional.of(claim));
+		Mockito.when(userRepository.findByRoleId(Mockito.any())).thenReturn(Optional.of(seniorApproverList));
 		approvalService.approveOrReject(approveRequestDto);
 	}
 
