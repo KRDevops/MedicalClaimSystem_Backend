@@ -226,6 +226,23 @@ public class ApprovalServiceTest {
 	}
 
 	@Test
+	public void testPassIfDeviationPercentLesserThan10() throws IOException, MediClaimException, MessagingException {
+		Claim claim = new Claim();
+
+		claim.setClaimId(10L);
+		claim.setUserId(user);
+		claim.setPolicyNumber(policy);
+		claim.setHospitalId(hospital);
+		claim.setDeviationPercentage(5);
+		claim.setClaimAmount(2000.00);
+
+		Mockito.when(userRepository.findByUserId(approveRequestDto.getApproverId())).thenReturn(Optional.of(approver));
+		Mockito.when(claimRepository.findByClaimId(approveRequestDto.getClaimId())).thenReturn(Optional.of(claim));
+		ResponseDto responseUpdateDto = approvalService.approveOrReject(approveRequestDto);
+		assertEquals(new Integer(200), responseUpdateDto.getStatusCode());
+	}
+
+	@Test
 	public void testRejectClaim() throws IOException, MediClaimException, MessagingException {
 		ApproveRequestDto approveRequestDto = new ApproveRequestDto();
 		approveRequestDto.setApproverId(1L);
