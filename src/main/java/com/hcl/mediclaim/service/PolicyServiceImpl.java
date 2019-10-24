@@ -14,7 +14,7 @@ import com.hcl.mediclaim.util.MediClaimUtil;
 
 /**
  * 
- * @author User1
+ * @author ratna
  *
  * @since 2019-10-21 This class includes functionality for validating if the
  *        policy number is present or not.
@@ -32,9 +32,10 @@ public class PolicyServiceImpl implements PolicyService {
 	/**
 	 * Validating the policy number if it is present in backend or not.
 	 * 
-	 * @param policyNumber
+	 * @author ratna
+	 * @param policyNumber Policy Number
 	 * @return {@link ValidatePolicyResponseDto}
-	 * @throws PolicyNotPresentException
+	 * @throws PolicyNotPresentException Custom Exception
 	 */
 	@Override
 	public ValidatePolicyResponseDto policyValidation(Long policyNumber) throws PolicyNotPresentException {

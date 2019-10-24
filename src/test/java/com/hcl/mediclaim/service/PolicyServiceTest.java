@@ -48,7 +48,7 @@ public class PolicyServiceTest {
 	public void positivePolicyValidation() throws PolicyNotPresentException {
 		Mockito.when(policyRepository.findById(Mockito.any())).thenReturn(Optional.of(policy));
 		validatePolicyResponseDto=policyServiceImpl.policyValidation(policyNumber);
-		Assert.assertEquals(11L, validatePolicyResponseDto.getUserId());
+		Assert.assertEquals(Long.valueOf(11), validatePolicyResponseDto.getUserId());
 	}
 	
 	@Test(expected=PolicyNotPresentException.class)

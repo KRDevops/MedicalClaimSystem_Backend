@@ -3,6 +3,8 @@ package com.hcl.mediclaim.controller;
 import java.util.List;
 
 import javax.mail.MessagingException;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,15 @@ import com.hcl.mediclaim.service.ApprovalService;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @author Balaji,SaiCharan
+ * @since 2019-10-22 This class includes methods for viewing the pending
+ *        requests and approving/rejecting a mediclaim request by
+ *        approver/senior approver.
+ * 
+ * 
+ */
+
 @RestController
 @RequestMapping(value = "/api/v1")
 @CrossOrigin(allowedHeaders = { "*", "*/" }, origins = { "*", "*/" })
@@ -44,7 +55,7 @@ public class ApprovalController {
 	 *
 	 */
 	@GetMapping(value = "/approvals/{approverId}")
-	public ResponseEntity<ApprovalResponseDto> view(@PathVariable Long approverId, @RequestParam Integer pageNumber)
+	public ResponseEntity<ApprovalResponseDto> view(@NotNull @NotEmpty @PathVariable Long approverId, @NotNull @NotEmpty @RequestParam Integer pageNumber)
 			throws ApproverNotFoundException {
 		log.info("entered into approval controller");
 		List<ApprovalDto> approvalDto = approvalService.viewApprovals(approverId, pageNumber);

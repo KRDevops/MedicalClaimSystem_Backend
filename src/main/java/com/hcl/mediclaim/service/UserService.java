@@ -6,5 +6,6 @@ import com.hcl.mediclaim.exception.ApproverNotFoundException;
 import com.hcl.mediclaim.exception.UserNotFoundException;
 
 public interface UserService {
+	
 	LoginResponseDto login(LoginRequestDto userLoginRequestDto) throws UserNotFoundException, ApproverNotFoundException;
 }

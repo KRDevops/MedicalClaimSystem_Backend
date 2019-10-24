@@ -58,14 +58,14 @@ public class ClaimControllerTest {
 	public void positiveTestCreate() throws IOException, MediClaimException, MessagingException {
 		Mockito.when(claimService.create(Mockito.any(), Mockito.any())).thenReturn(claimResponseDto);
 		ClaimResponseDto actual = claimcontroller.create(multipartFile, claimRequestDto);
-		Assert.assertEquals("Success", actual.getMessage());
+		Assert.assertEquals("Search is Successful", actual.getMessage());
 	}
 
 	@Test
 	public void negativeTestCreate() throws IOException, MediClaimException, MessagingException {
 		Mockito.when(claimService.create(Mockito.any(), Mockito.any())).thenReturn(negClaimResponseDto);
 		ClaimResponseDto actual = claimcontroller.create(multipartFile, claimRequestDto);
-		Assert.assertEquals("Failed", actual.getMessage());
+		Assert.assertEquals("FAILED", actual.getMessage());
 	}
 
 }

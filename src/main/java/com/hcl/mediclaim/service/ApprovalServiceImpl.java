@@ -33,7 +33,7 @@ import com.hcl.mediclaim.util.MediClaimUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Balaji
+ * @author Balaji,KonReddy Charan
  * @since 2019-10-22 This class includes methods for viewing the pending
  *        requests and approving/rejecting a mediclaim request by
  *        approver/senior approver.
@@ -61,10 +61,12 @@ public class ApprovalServiceImpl implements ApprovalService {
 	 * This method is used to fetch the approvals list for the loggedIn approver
 	 * 
 	 * @author KonReddy Charan
-	 * @param approverId
-	 * @param pageNumber
-	 * @return ApprovalRepsoneDto
-	 * @throws ApproverNotFoundException
+	 * @param approverId To view approvals by approver id
+	 * @param pageNumber This parameter is used for pagination
+	 * @return ApprovalRepsoneDto This parameter is used to send the response
+	 *         message.
+	 * @throws ApproverNotFoundException This parameter is used to throw the
+	 *                                   Exception if approver not found.
 	 */
 	@Override
 	public List<ApprovalDto> viewApprovals(Long approverId, Integer pageNumber) throws ApproverNotFoundException {
@@ -92,11 +94,9 @@ public class ApprovalServiceImpl implements ApprovalService {
 		claims.get().forEach(claim -> {
 			ApprovalDto approvalDto = new ApprovalDto();
 			BeanUtils.copyProperties(claim, approvalDto);
-			hospitals.forEach(hospital -> {
-				if (hospital.getHospitalId().equals(claim.getHospitalId().getHospitalId())) {
-					approvalDto.setHospitalName(hospital.getHospitalName());
-				}
-			});
+			Optional<Hospital> hospitalId = hospitals.stream().findAny()
+					.filter(hospital -> hospital.getHospitalId().equals(claim.getHospitalId().getHospitalId()));
+			approvalDto.setHospitalName(hospitalId.get().getHospitalName());
 			approvalDto.setUserId(claim.getUserId().getUserId());
 			approvalDto.setPolicyNumber(claim.getPolicyNumber().getPolicyNumber());
 			approvalDtos.add(approvalDto);
@@ -109,10 +109,13 @@ public class ApprovalServiceImpl implements ApprovalService {
 	 * action clicked by approver or senior approver in mediclaim management portal.
 	 * 
 	 * @author Balaji
-	 * @param ApproveRequestDto
-	 * @return ResponseDto
-	 * @throws MediClaimException
-	 * @throws MessagingException
+	 * @param approveRequestDto This parameter is used to set all the required
+	 *                          attributes for approval/reject by approver.
+	 * @return ResponseDto This parameter returns the response message.
+	 * @throws MediClaimException This parameter is used to throw the Mediclaim
+	 *                            exception
+	 * @throws MessagingException This parameter is used to throw when email sending
+	 *                            fails.
 	 * 
 	 */
 	@Override
@@ -154,6 +157,16 @@ public class ApprovalServiceImpl implements ApprovalService {
 		return responseDto;
 	}
 
+	/**
+	 * 
+	 * @param claim             Used for approving a claim
+	 * @param policy            Used for approving a claim
+	 * @param approveRequestDto This param is for setting required parameters for
+	 *                          approval/rejection
+	 * @return ResponseDto Used for response message
+	 * @throws MediClaimException Thrown when approval is rejected
+	 * @throws MessagingException Thrown when mail sending fails
+	 */
 	private ResponseDto approveClaim(Optional<Claim> claim, Policy policy, ApproveRequestDto approveRequestDto)
 			throws MediClaimException, MessagingException {
 		if (claim.isPresent()) {
@@ -189,6 +202,15 @@ public class ApprovalServiceImpl implements ApprovalService {
 		}
 	}
 
+	/**
+	 * @param claim             Used for approving a claim
+	 * @param approveRequestDto This param is for setting required parameters for
+	 *                          approval/rejection
+	 * @return ResponseDto Used for response message
+	 * @throws MediClaimException Thrown when approval is rejected
+	 * @throws MessagingException Thrown when mail sending fails
+	 * 
+	 */
 	private ResponseDto rejectClaim(ApproveRequestDto approveRequestDto, Optional<Claim> claim)
 			throws MessagingException, MediClaimException {
 		if (claim.isPresent()) {
@@ -206,6 +228,15 @@ public class ApprovalServiceImpl implements ApprovalService {
 		}
 	}
 
+	/**
+	 * @param seniorApprovers   This is used for senior approval
+	 * @param approveRequestDto This param is for setting required parameters for
+	 *                          approval/rejection
+	 * @return ResponseDto Used for response message
+	 * @throws MediClaimException Thrown when approval is rejected
+	 * @throws MessagingException Thrown when mail sending fails
+	 * 
+	 */
 	private ResponseDto passClaim(Optional<List<User>> seniorApprovers, ApproveRequestDto approveRequestDto)
 			throws MediClaimException {
 		if (seniorApprovers.isPresent() && !seniorApprovers.get().isEmpty()) {
@@ -224,6 +255,15 @@ public class ApprovalServiceImpl implements ApprovalService {
 		}
 	}
 
+	/**
+	 * @param claim             Used for approving a claim
+	 * @param policy            Used for approving a claim
+	 * @param approveRequestDto This param is for setting required parameters for
+	 *                          approval/rejection
+	 * @return ResponseDto Used for response message
+	 * @throws MediClaimException Thrown when approval is rejected
+	 * @throws MessagingException Thrown when mail sending fails
+	 */
 	private ResponseDto seniorApproveClaim(ApproveRequestDto approveRequestDto, Optional<Claim> claim, Policy policy)
 			throws MessagingException, MediClaimException {
 		ResponseDto responseDto = new ResponseDto();

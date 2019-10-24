@@ -18,7 +18,7 @@ import com.hcl.mediclaim.util.MediClaimUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
+ * @author Balaji
  * @since 2019-10-21 This class includes methods for login functionality for
  *        approver in mediclaim management system.
  */
@@ -34,12 +34,12 @@ public class UserServiceImpl implements UserService {
 	RoleRepository roleRepository;
 
 	/**
-	 * 
+	 * @author Balaji
 	 * @return This method is used to login to the book management system and
 	 *         returns success message.
 	 * 
-	 * @throws UserNotFoundException
-	 * @throws ApproverNotFoundException
+	 * @throws UserNotFoundException Custom Exceptions
+	 * @throws ApproverNotFoundException Custom Exceptions
 	 * 
 	 * 
 	 */
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 				userLoginResponseDto.setUserId(user.get().getUserId());
 				userLoginResponseDto.setRoleId(role.get().getRoleId());
 			} else {
-				throw new ApproverNotFoundException(MediClaimUtil.APPROVER_NOT_FOUND);
+				throw new ApproverNotFoundException(MediClaimUtil.INVALID_USER);
 			}
 		}
 		log.info("login method in UserService ended");

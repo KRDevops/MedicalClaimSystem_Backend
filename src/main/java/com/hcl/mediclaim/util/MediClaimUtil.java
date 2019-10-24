@@ -26,6 +26,7 @@ public class MediClaimUtil {
 	public static final String APPROVE_SUCCESS = "The claim amount has been approved successfully";
 	public static final String APPROVED = "APPROVED";
 	public static final String REJECTED = "REJECTED";
+	public static final String FAILED = "FAILED";
 	public static final String PENDING = "PASS";
 	public static final String SUBMITTED = "SUBMITTED";
 	public static final String USER_APPROVED_MESSAGE = "Your claim is approved!! Payment is in progress.";
@@ -57,4 +58,6 @@ public class MediClaimUtil {
 	public static final String CLAIM_FOR_APPROVAL_NOT_AVAILABLE = "No claim is present for Approval";
 	public static final String CLAIM_NOT_AVAILABLE = "No Claim is available";
 	public static final Integer SIZE = 10;
+	public static final Double DOUBLE_ZERO = 0.00;
+	public static final String INVALID_USER = "Invalid User";
 }

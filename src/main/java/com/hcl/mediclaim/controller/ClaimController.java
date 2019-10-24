@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.hcl.mediclaim.dto.ClaimResponseDto;
 import com.hcl.mediclaim.exception.MediClaimException;
 import com.hcl.mediclaim.service.ClaimService;
+import com.hcl.mediclaim.util.MediClaimUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,11 +52,11 @@ public class ClaimController {
 		log.info("Claim Controller Create Method Started");
 		ClaimResponseDto claimResponseDto = claimService.create(documents, claimRequestDto);
 		if (claimResponseDto.getClaimId() != null) {
-			claimResponseDto.setMessage("Success");
-			claimResponseDto.setStatusCode(200);
+			claimResponseDto.setMessage(MediClaimUtil.SUCCESS);
+			claimResponseDto.setStatusCode(MediClaimUtil.GENERICSUCCESSCODE);
 		} else {
-			claimResponseDto.setMessage("Failed");
-			claimResponseDto.setStatusCode(404);
+			claimResponseDto.setMessage(MediClaimUtil.FAILED);
+			claimResponseDto.setStatusCode(MediClaimUtil.GENERICFAILURECODE);
 		}
 		log.info("Claim Controller Create Method Ended");
 		return claimResponseDto;

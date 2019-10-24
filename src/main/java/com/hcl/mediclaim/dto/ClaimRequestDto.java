@@ -1,5 +1,6 @@
 package com.hcl.mediclaim.dto;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,8 +16,9 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClaimRequestDto {
-
+public class ClaimRequestDto implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	private String diagnosis;
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate admissionDate;
